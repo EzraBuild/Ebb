@@ -18,6 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Geist and Geist Mono (SIL Open Font License, see Fonts/OFL.txt) -->
+    <Resource Include="Fonts\*.ttf" />
+    <None Include="Fonts\OFL.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="Ebb.Tests" />
   </ItemGroup>
 
