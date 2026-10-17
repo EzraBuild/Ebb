@@ -1,0 +1,7 @@
+<Window
+    x:Class="Ebb.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Ebb"
+    Width="1100"
+    Height="720" />
