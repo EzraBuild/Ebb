@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <!-- No console window: it reports back through a JSON file. -->
+    <OutputType>WinExe</OutputType>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
