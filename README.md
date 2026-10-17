@@ -53,6 +53,15 @@ dotnet run --project src/Ebb.App
 dotnet test
 ```
 
+To get a release build (about 8 MB, needs the .NET 8 Desktop Runtime):
+
+```powershell
+dotnet publish src/Ebb.App -c Release -o publish
+.\publish\Ebb.exe
+```
+
+`Ebb.Helper.exe` must stay next to `Ebb.exe`.
+
 The tests only use fake folders in `%TEMP%\EbbTests` and fake tools, and never touch your real files. One opt-in test moves a tiny temp file to your real Recycle Bin. Run it with `$env:EBB_RECYCLE_TEST = "1"; dotnet test`.
 
 ## Project layout
