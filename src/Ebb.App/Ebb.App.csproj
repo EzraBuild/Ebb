@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>Ebb</AssemblyName>
     <RootNamespace>Ebb.App</RootNamespace>
+    <ApplicationIcon>Assets\ebb.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
