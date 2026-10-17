@@ -1,6 +1,9 @@
+using Ebb.Core.Cleanup;
+using Ebb.Core.Elevation;
 using Ebb.Core.Findings;
 using Ebb.Core.Platform;
 using Ebb.Core.Scanning;
+using Ebb.Core.Vhdx;
 
 namespace Ebb.Tests;
 
@@ -58,6 +61,41 @@ internal sealed class FakeRecycleBin(long bytes = 0, long items = 0) : IRecycleB
 internal sealed class FakeTools(params string[] installed) : IToolLocator
 {
     public string? Find(string tool) => installed.Contains(tool) ? $@"C:\fake\{tool}.exe" : null;
+}
+
+internal sealed class FakeElevated(HelperResult? result = null) : IElevatedRunner
+{
+    public List<HelperRequest> Requests { get; } = [];
+
+    public Task<HelperResult> RunAsync(HelperRequest request, CancellationToken cancellationToken = default)
+    {
+        Requests.Add(request);
+        return Task.FromResult(result ?? new HelperResult(true, "Done.", 1234));
+    }
+}
+
+internal sealed class FakeCompactor(CompactResult? result = null) : IDiskCompactor
+{
+    public List<CompactDisk> Disks { get; } = [];
+
+    public Task<CompactResult> CompactAsync(CompactDisk disk, CancellationToken cancellationToken = default)
+    {
+        Disks.Add(disk);
+        return Task.FromResult(result ?? new CompactResult(true, "Shrunk.", 10_000, 4_000));
+    }
+}
+
+/// <summary>Records removals instead of doing them. Used for Recycle Bin mode so tests never touch the real bin.</summary>
+internal sealed class RecordingRemover(Func<string, Exception?>? fail = null) : IFileRemover
+{
+    public List<(string Path, RemovalMode Mode)> Removed { get; } = [];
+
+    public void Remove(string path, RemovalMode mode)
+    {
+        if (fail?.Invoke(path) is { } error)
+            throw error;
+        Removed.Add((path, mode));
+    }
 }
 
 internal sealed class FakeRunner : ICommandRunner
