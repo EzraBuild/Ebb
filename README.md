@@ -22,7 +22,7 @@ A **Biggest folders** view lets you browse anything the findings don't explain.
 ## How cleaning works
 
 1. Tick what you want to clean.
-2. **Review**: Ebb shows exactly what will happen. You see every file and folder with its size and a tick box, plus the exact command for anything that runs one. Under **By folder** you can untick a whole folder (say, one project) at once. Nothing changes until you press **Clean up**.
+2. **Review**: Ebb shows exactly what will happen. You see every file and folder with its size and a tick box, plus the exact command for anything that runs one. Long lists have a filter: type a folder or project (e.g. `Desktop/count`), then **Untick these**. Nothing changes until you press **Clean up**.
 3. Ebb does only what you approved, then shows what it freed.
 
 Safety rules built in:

@@ -132,6 +132,61 @@
         </Style.Triggers>
     </Style>
 
+    <!--  A plain text box. Tag is the placeholder.  -->
+    <Style x:Key="Ebb.Input" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource Ebb.TextMuted}" />
+        <Setter Property="Background" Value="{DynamicResource Ebb.Bg}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border
+                        x:Name="Frame"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        SnapsToDevicePixels="True">
+                        <!--  The TextBox puts its Padding on the content host itself; the placeholder lines up with it  -->
+                        <Grid>
+                            <TextBlock
+                                x:Name="Placeholder"
+                                Margin="12,0,10,0"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource Ebb.TextFaint}"
+                                IsHitTestVisible="False"
+                                Text="{TemplateBinding Tag}"
+                                Visibility="Collapsed" />
+                            <ScrollViewer
+                                x:Name="PART_ContentHost"
+                                Focusable="False"
+                                Style="{x:Null}"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollBarVisibility="Hidden" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Ebb.BorderStrong}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Ebb.Text}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  A full-width clickable row with a bottom rule.  -->
     <Style x:Key="Ebb.Row" BasedOn="{StaticResource Ebb.ButtonBase}" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />

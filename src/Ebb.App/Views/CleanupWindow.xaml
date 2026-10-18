@@ -82,50 +82,6 @@
             VerticalScrollBarVisibility="Auto"
             Visibility="{Binding IsReview, Converter={StaticResource Visible}}">
             <StackPanel Margin="36,22,36,28">
-                <!--  Tick or untick a whole folder (say, one project) across every step  -->
-                <StackPanel Margin="0,0,0,26" Visibility="{Binding HasFolders, Converter={StaticResource Visible}}">
-                    <TextBlock Style="{StaticResource Ebb.Eyebrow}" Text="BY FOLDER" />
-                    <TextBlock
-                        Margin="0,6,0,8"
-                        Style="{StaticResource Ebb.Meta}"
-                        Text="Untick a folder to keep everything in it." />
-                    <ListBox
-                        MaxHeight="220"
-                        BorderBrush="{DynamicResource Ebb.Border}"
-                        BorderThickness="1"
-                        ItemsSource="{Binding Folders}"
-                        Style="{StaticResource Ebb.ItemList}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type vm:FolderGroupViewModel}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="30" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <CheckBox AutomationProperties.Name="{Binding Path}" IsChecked="{Binding Selected}" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        VerticalAlignment="Center"
-                                        FontFamily="{StaticResource Ebb.Mono}"
-                                        FontSize="12"
-                                        Foreground="{DynamicResource Ebb.Text}"
-                                        Text="{Binding Path}"
-                                        TextTrimming="CharacterEllipsis"
-                                        ToolTip="{Binding Path}" />
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="16,0,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Style="{StaticResource Ebb.Number}"
-                                        Text="{Binding Summary}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </StackPanel>
-
                 <ItemsControl Focusable="False" ItemsSource="{Binding Steps}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:StepViewModel}">
@@ -179,21 +135,40 @@
                                     </ItemsControl>
 
                                     <StackPanel Margin="0,12,0,0" Visibility="{Binding HasItems, Converter={StaticResource Visible}}">
+                                        <!--  Filter by folder: Tick all / Untick all then act on what's shown  -->
+                                        <TextBox
+                                            Margin="0,0,0,10"
+                                            AutomationProperties.Name="Filter by folder"
+                                            Style="{StaticResource Ebb.Input}"
+                                            Tag="Filter by folder, e.g. Desktop/count"
+                                            Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}"
+                                            Visibility="{Binding CanFilter, Converter={StaticResource Visible}}" />
                                         <Grid Margin="0,0,0,6">
                                             <TextBlock Style="{StaticResource Ebb.Meta}" Text="{Binding ItemsSummary}" />
                                             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                                                <Button Command="{Binding TickAllCommand}" Content="Tick all" Style="{StaticResource Ebb.Link}" />
+                                                <Button
+                                                    Margin="0,0,16,0"
+                                                    Command="{Binding ClearFilterCommand}"
+                                                    Content="Clear filter"
+                                                    Style="{StaticResource Ebb.Link}"
+                                                    Visibility="{Binding IsFiltering, Converter={StaticResource Visible}}" />
+                                                <Button Command="{Binding TickAllCommand}" Content="{Binding TickText}" Style="{StaticResource Ebb.Link}" />
                                                 <Button
                                                     Margin="16,0,0,0"
                                                     Command="{Binding UntickAllCommand}"
-                                                    Content="Untick all"
+                                                    Content="{Binding UntickText}"
                                                     Style="{StaticResource Ebb.Link}" />
                                             </StackPanel>
                                         </Grid>
+                                        <TextBlock
+                                            Margin="0,10,0,4"
+                                            Style="{StaticResource Ebb.Body}"
+                                            Text="Nothing here matches that."
+                                            Visibility="{Binding NothingMatches, Converter={StaticResource Visible}}" />
                                         <ListBox
                                             MaxHeight="260"
                                             BorderBrush="{DynamicResource Ebb.Border}"
-                                            ItemsSource="{Binding Items}"
+                                            ItemsSource="{Binding ShownItems}"
                                             Style="{StaticResource Ebb.ItemList}">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate DataType="{x:Type vm:PlanItemViewModel}">

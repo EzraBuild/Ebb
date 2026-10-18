@@ -28,18 +28,12 @@ public sealed partial class CleanupViewModel : ObservableObject
         _logPath = logPath;
         _dialogs = dialogs;
         Steps = plan.Steps.Select(s => new StepViewModel(s, plan, TotalsChanged)).ToList();
-        Folders = FolderGroupViewModel.Build(Steps.SelectMany(s => s.Items));
         Skipped = plan.Skipped.Select(s => new SkippedViewModel(s.Finding.Title, s.Reason)).ToList();
     }
 
     public CleanupPlan Plan { get; }
 
     public IReadOnlyList<StepViewModel> Steps { get; }
-
-    /// <summary>Folders holding several items, to tick or untick a whole project or folder at once.</summary>
-    public IReadOnlyList<FolderGroupViewModel> Folders { get; }
-
-    public bool HasFolders => Folders.Count > 0;
 
     public IReadOnlyList<SkippedViewModel> Skipped { get; }
 
@@ -130,8 +124,6 @@ public sealed partial class CleanupViewModel : ObservableObject
 
     private void TotalsChanged()
     {
-        foreach (var folder in Folders)
-            folder.Refresh();
         OnPropertyChanged(nameof(FooterText));
         OnPropertyChanged(nameof(ConfirmText));
         CleanCommand.NotifyCanExecuteChanged();
@@ -179,6 +171,28 @@ public sealed partial class StepViewModel : ObservableObject
 
     public bool HasItems => Items.Count > 0;
 
+    public bool CanFilter => Items.Count > 3;
+
+    /// <summary>
+    /// Narrows the list to items whose path has every word, e.g. "desktop count" or "Desktop/count".
+    /// Tick all and Untick all then act on just those.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsFiltering), nameof(ShownItems), nameof(NothingMatches), nameof(ItemsSummary),
+        nameof(TickText), nameof(UntickText))]
+    private string _filter = "";
+
+    public bool IsFiltering => FilterWords.Length > 0;
+
+    public IReadOnlyList<PlanItemViewModel> ShownItems =>
+        IsFiltering ? Items.Where(i => FilterWords.All(w => i.Path.Contains(w, StringComparison.OrdinalIgnoreCase))).ToList() : Items;
+
+    public bool NothingMatches => IsFiltering && ShownItems.Count == 0;
+
+    public string TickText => IsFiltering ? "Tick these" : "Tick all";
+
+    public string UntickText => IsFiltering ? "Untick these" : "Untick all";
+
     public string SizeText => Step.EstimatedBytes > 0 ? ByteSize.Format(Step.EstimatedBytes) : "—";
 
     public string ItemsSummary
@@ -187,15 +201,21 @@ public sealed partial class StepViewModel : ObservableObject
         {
             var ticked = Items.Count(i => i.Selected);
             var verb = Step.RemovalFor(_plan.RemovalMode) == RemovalMode.RecycleBin ? "go to the Recycle Bin" : "get deleted for good";
-            return $"{ticked:N0} of {Items.Count:N0} ticked · these {verb}";
+            var matches = IsFiltering ? $"{Display.Count(ShownItems.Count, "match", "matches")} · " : "";
+            return $"{matches}{ticked:N0} of {Items.Count:N0} ticked · these {verb}";
         }
     }
 
-    [RelayCommand]
-    private void TickAll() => SetAll(true);
+    private string[] FilterWords => Filter.Split([' ', '/', '\\'], StringSplitOptions.RemoveEmptyEntries);
 
     [RelayCommand]
-    private void UntickAll() => SetAll(false);
+    private void TickAll() => SetShown(true);
+
+    [RelayCommand]
+    private void UntickAll() => SetShown(false);
+
+    [RelayCommand]
+    private void ClearFilter() => Filter = "";
 
     public void RemovalModeChanged()
     {
@@ -203,9 +223,9 @@ public sealed partial class StepViewModel : ObservableObject
         OnPropertyChanged(nameof(ItemsSummary));
     }
 
-    private void SetAll(bool selected)
+    private void SetShown(bool selected)
     {
-        foreach (var item in Items.Where(i => i.CanSelect))
+        foreach (var item in ShownItems.Where(i => i.CanSelect))
             item.Selected = selected;
     }
 
@@ -220,8 +240,6 @@ public sealed partial class StepViewModel : ObservableObject
 public sealed partial class PlanItemViewModel(PlanItem item, Action changed) : ObservableObject
 {
     public string Path => item.Path;
-
-    public long Bytes => item.Bytes;
 
     public string SizeText => ByteSize.Format(item.Bytes);
 

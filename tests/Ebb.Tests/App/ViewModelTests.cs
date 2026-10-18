@@ -133,33 +133,36 @@ public class ViewModelTests : IDisposable
     }
 
     [Fact]
-    public void Review_window_can_untick_a_whole_folder()
+    public void Review_window_filters_by_folder_and_unticks_only_what_it_shows()
     {
-        var count = _layout.Dir(@"Users\me\Desktop\Main\count\node_modules");
+        var count = _layout.Dir(@"Users\me\Desktop\Main\count-app\node_modules");
         var other = _layout.Dir(@"Users\me\Desktop\Main\other\node_modules");
-        var one = _layout.Dir(@"Users\me\Documents\one\node_modules");
+        var one = _layout.Dir(@"Users\me\Documents\count-down\node_modules");
         var two = _layout.Dir(@"Users\me\Documents\two\node_modules");
         var finding = Cleanup.CleanupPlannerTests.Finding("nm", new RemoveItems("npm install"),
             [.. new[] { count, other, one, two }.Select(p => new FindingItem(p, MB, DateTime.UtcNow, SelectedByDefault: true))]);
         var cleanup = new CleanupViewModel(_services.Planner.Plan([finding]), _services.Executor, "log", _dialogs);
+        var step = Assert.Single(cleanup.Steps);
+        Assert.True(step.CanFilter);
 
-        // "Desktop" holds the same two as "Desktop\Main", and the profile holds everything: both left out.
-        Assert.Equal([_layout.PathOf(@"Users\me\Desktop\Main"), _layout.PathOf(@"Users\me\Documents")],
-            cleanup.Folders.Select(f => f.Path));
-        var desktop = cleanup.Folders[0];
-        var documents = cleanup.Folders[1];
-        Assert.Equal("2 items · 2 MB", desktop.Summary);
+        step.Filter = "desktop";
+        Assert.Equal([count, other], step.ShownItems.Select(i => i.Path));
+        Assert.Equal("Untick these", step.UntickText);
 
-        desktop.Selected = false;
-        Assert.Equal([false, false, true, true], cleanup.Steps[0].Items.Select(i => i.Selected));
+        step.UntickAllCommand.Execute(null);
+        Assert.Equal([false, false, true, true], step.Items.Select(i => i.Selected));
         Assert.Equal("Clean up 2 MB", cleanup.ConfirmText);
 
-        cleanup.Steps[0].Items[2].Selected = false;
-        Assert.Null(documents.Selected); // some ticked
+        step.Filter = "Desktop/COUNT"; // every word, any case, either slash
+        Assert.Equal([count], step.ShownItems.Select(i => i.Path));
+        Assert.StartsWith("1 match · 2 of 4 ticked", step.ItemsSummary);
 
-        documents.Selected = true;
-        Assert.True(cleanup.Steps[0].Items[2].Selected);
-        Assert.False(desktop.Selected);
+        step.Filter = "nothing-like-this";
+        Assert.True(step.NothingMatches);
+
+        step.ClearFilterCommand.Execute(null);
+        Assert.Equal(4, step.ShownItems.Count);
+        Assert.Equal("Untick all", step.UntickText);
     }
 
     [Fact]
