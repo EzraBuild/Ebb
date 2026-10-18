@@ -6,7 +6,7 @@ Most disk tools show *where* the space went. Ebb also tells you *what it is* and
 
 ## Download
 
-Get it from **[ebb-tau.vercel.app](https://ebb-tau.vercel.app)** or [Releases](https://github.com/EzraBuild/Ebb/releases).
+Get it from **[ebb.justsee.me](https://ebb.justsee.me)** or [Releases](https://github.com/EzraBuild/Ebb/releases).
 
 **Windows 10/11:** unzip it and run `Ebb.exe`.
 
@@ -118,7 +118,7 @@ tests/Ebb.Tests  xUnit tests for Windows (sandboxed)
 tests/Ebb.Linux.Tests  xUnit tests for the Linux parts, run on Linux and Windows
 packaging/linux  installer, menu entry, icon and .deb builder for Linux
 packaging/aur    the ebb-bin PKGBUILD
-site             the website (Next.js on Vercel, deploys on every push)
+site             the website, ebb.justsee.me (Next.js on Vercel, deploys on every push)
 ```
 
 ## License

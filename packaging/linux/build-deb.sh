@@ -36,7 +36,7 @@ Depends: libc6, libgcc-s1, libstdc++6, zlib1g, libfontconfig1, libx11-6, libice6
 Recommends: pkexec | policykit-1
 Section: utils
 Priority: optional
-Homepage: https://ebb-tau.vercel.app
+Homepage: https://ebb.justsee.me
 Description: See what's filling your disk and clean it up safely
  Ebb scans a disk, explains what's using the space in plain words, and
  cleans up only what you approve: package caches, logs, app caches,
