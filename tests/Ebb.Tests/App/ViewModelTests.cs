@@ -133,6 +133,36 @@ public class ViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Review_window_can_untick_a_whole_folder()
+    {
+        var count = _layout.Dir(@"Users\me\Desktop\Main\count\node_modules");
+        var other = _layout.Dir(@"Users\me\Desktop\Main\other\node_modules");
+        var one = _layout.Dir(@"Users\me\Documents\one\node_modules");
+        var two = _layout.Dir(@"Users\me\Documents\two\node_modules");
+        var finding = Cleanup.CleanupPlannerTests.Finding("nm", new RemoveItems("npm install"),
+            [.. new[] { count, other, one, two }.Select(p => new FindingItem(p, MB, DateTime.UtcNow, SelectedByDefault: true))]);
+        var cleanup = new CleanupViewModel(_services.Planner.Plan([finding]), _services.Executor, "log", _dialogs);
+
+        // "Desktop" holds the same two as "Desktop\Main", and the profile holds everything: both left out.
+        Assert.Equal([_layout.PathOf(@"Users\me\Desktop\Main"), _layout.PathOf(@"Users\me\Documents")],
+            cleanup.Folders.Select(f => f.Path));
+        var desktop = cleanup.Folders[0];
+        var documents = cleanup.Folders[1];
+        Assert.Equal("2 items · 2 MB", desktop.Summary);
+
+        desktop.Selected = false;
+        Assert.Equal([false, false, true, true], cleanup.Steps[0].Items.Select(i => i.Selected));
+        Assert.Equal("Clean up 2 MB", cleanup.ConfirmText);
+
+        cleanup.Steps[0].Items[2].Selected = false;
+        Assert.Null(documents.Selected); // some ticked
+
+        documents.Selected = true;
+        Assert.True(cleanup.Steps[0].Items[2].Selected);
+        Assert.False(desktop.Selected);
+    }
+
+    [Fact]
     public async Task Folder_browser_goes_in_and_back_up()
     {
         var main = Main();

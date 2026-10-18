@@ -28,12 +28,18 @@ public sealed partial class CleanupViewModel : ObservableObject
         _logPath = logPath;
         _dialogs = dialogs;
         Steps = plan.Steps.Select(s => new StepViewModel(s, plan, TotalsChanged)).ToList();
+        Folders = FolderGroupViewModel.Build(Steps.SelectMany(s => s.Items));
         Skipped = plan.Skipped.Select(s => new SkippedViewModel(s.Finding.Title, s.Reason)).ToList();
     }
 
     public CleanupPlan Plan { get; }
 
     public IReadOnlyList<StepViewModel> Steps { get; }
+
+    /// <summary>Folders holding several items, to tick or untick a whole project or folder at once.</summary>
+    public IReadOnlyList<FolderGroupViewModel> Folders { get; }
+
+    public bool HasFolders => Folders.Count > 0;
 
     public IReadOnlyList<SkippedViewModel> Skipped { get; }
 
@@ -124,6 +130,8 @@ public sealed partial class CleanupViewModel : ObservableObject
 
     private void TotalsChanged()
     {
+        foreach (var folder in Folders)
+            folder.Refresh();
         OnPropertyChanged(nameof(FooterText));
         OnPropertyChanged(nameof(ConfirmText));
         CleanCommand.NotifyCanExecuteChanged();
@@ -212,6 +220,8 @@ public sealed partial class StepViewModel : ObservableObject
 public sealed partial class PlanItemViewModel(PlanItem item, Action changed) : ObservableObject
 {
     public string Path => item.Path;
+
+    public long Bytes => item.Bytes;
 
     public string SizeText => ByteSize.Format(item.Bytes);
 
