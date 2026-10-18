@@ -26,7 +26,7 @@ const site = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : "http://localhost:3000";
 
 const description =
-  "Ebb scans your Windows drive, explains what's using the space in plain words, and helps you clean it up safely. Free and open source.";
+  "Ebb scans your drive, explains what's using the space in plain words, and helps you clean it up safely. For Windows and Linux, free and open source.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),

@@ -15,6 +15,8 @@ export type Release = {
   full: Download;
   /** Needs the .NET 8 Desktop Runtime. */
   small: Download;
+  /** 64-bit Linux, nothing to install. */
+  linux: Download;
 };
 
 type Asset = { name: string; size: number; browser_download_url: string };
@@ -23,6 +25,7 @@ const fallback: Release = {
   version: null,
   full: { url: releasesUrl, size: null },
   small: { url: releasesUrl, size: null },
+  linux: { url: releasesUrl, size: null },
 };
 
 /** The newest GitHub release, checked about once an hour. Falls back to the releases page. */
@@ -46,6 +49,7 @@ export async function getRelease(): Promise<Release> {
       version: release.tag_name,
       full: pick("-win-x64.zip"),
       small: pick("-needs-dotnet8.zip"),
+      linux: pick("-linux-x64.tar.gz"),
     };
   } catch {
     return fallback;

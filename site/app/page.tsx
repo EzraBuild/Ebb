@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DownloadButtons } from "@/components/download-buttons";
 import { ArrowIcon, GitHubIcon, Logo } from "@/components/icons";
 import { PixelRain } from "@/components/pixel-rain";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -10,7 +11,7 @@ export default async function Home() {
 
   return (
     <>
-      <Header release={release} />
+      <Header />
       <main className="mx-auto max-w-[1200px] border-x border-line">
         <Hero release={release} />
         <Finds />
@@ -18,6 +19,7 @@ export default async function Home() {
         <HowItWorks />
         <Safety />
         <Disks />
+        <Linux release={release} />
         <Faq release={release} />
         <Cta release={release} />
       </main>
@@ -26,7 +28,7 @@ export default async function Home() {
   );
 }
 
-function Header({ release }: { release: Release }) {
+function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between border-x border-line pr-3 pl-6">
@@ -38,6 +40,7 @@ function Header({ release }: { release: Release }) {
           <a href="#finds" className="transition-colors hover:text-fg">What it finds</a>
           <a href="#how" className="transition-colors hover:text-fg">How it works</a>
           <a href="#safety" className="transition-colors hover:text-fg">Safety</a>
+          <a href="#linux" className="transition-colors hover:text-fg">Linux</a>
           <a href="#faq" className="transition-colors hover:text-fg">FAQ</a>
         </nav>
         <div className="flex items-center gap-1">
@@ -45,7 +48,7 @@ function Header({ release }: { release: Release }) {
           <a href={repoUrl} aria-label="Ebb on GitHub" className="grid size-9 place-items-center text-muted transition-colors hover:text-fg">
             <GitHubIcon className="size-4" />
           </a>
-          <a href={release.full.url} className="ml-2 inline-flex h-8 items-center bg-fg px-3 text-sm font-medium text-bg transition-opacity hover:opacity-85">
+          <a href="#download" className="ml-2 inline-flex h-8 items-center bg-fg px-3 text-sm font-medium text-bg transition-opacity hover:opacity-85">
             Download
           </a>
         </div>
@@ -61,7 +64,7 @@ function Hero({ release }: { release: Release }) {
       <div className="relative px-6 pt-20 pb-16 md:px-12 md:pt-28 md:pb-20">
         <p className="inline-flex items-center gap-2 border border-line bg-bg px-2.5 py-1 font-mono text-xs text-muted">
           <span className="size-1.5 bg-fg" />
-          {release.version ? `${release.version} is out` : "Now available"} · free and open source
+          {release.version ? `${release.version} is out` : "Now available"} · Windows and Linux · free and open source
         </p>
         <h1 className="mt-7 max-w-4xl text-5xl font-medium tracking-tighter text-balance sm:text-6xl md:text-7xl md:leading-[1.02]">
           Why is my C:&nbsp;drive full?
@@ -71,16 +74,12 @@ function Hero({ release }: { release: Release }) {
           remove. Then it cleans up only what you approve.
         </p>
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          <DownloadButton download={release.full} />
-          <SecondaryButton href={repoUrl}>
-            <GitHubIcon className="size-4" />
-            View on GitHub
-          </SecondaryButton>
+          <DownloadButtons release={release} />
         </div>
         <p className="mt-5 font-mono text-xs text-subtle">
-          Windows 10/11 · 64-bit · nothing to install.{" "}
-          <a href={release.small.url} className="underline decoration-line-strong underline-offset-4 hover:text-fg">
-            Have .NET 8? Get the {release.small.size ?? "small"} version
+          Windows 10/11 or 64-bit Linux · nothing to install ·{" "}
+          <a href={repoUrl} className="underline decoration-line-strong underline-offset-4 hover:text-fg">
+            source on GitHub
           </a>
         </p>
       </div>
@@ -304,9 +303,63 @@ function Disks() {
   );
 }
 
+const linuxFinds: ReactNode[] = [
+  "pacman, apt or dnf package cache",
+  "The systemd journal, keeping the newest 100 MB",
+  "Unused Flatpak runtimes",
+  <>App caches in <Code>~/.cache</Code></>,
+  "yay and paru build files",
+  "The Trash",
+];
+
+function Linux({ release }: { release: Release }) {
+  return (
+    <Section id="linux">
+      <SectionHead label="Linux" title="The same Ebb, on Linux.">
+        For 64-bit Linux: Arch and Omarchy, Ubuntu, Fedora and others. It knows where Linux keeps things, uses the
+        Trash like your file manager does, and steps that need root ask for your password first.
+      </SectionHead>
+      <div className="grid border-t border-line lg:grid-cols-[2fr_3fr]">
+        <div className="p-6 md:p-10">
+          <h3 className="font-mono text-xs tracking-widest text-subtle uppercase">Also finds</h3>
+          <ul className="mt-6 space-y-3.5">
+            {linuxFinds.map((item, i) => (
+              <li key={i} className="flex gap-3 text-[15px]">
+                <span className="mt-[9px] size-1.5 shrink-0 bg-fg" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 border border-line-strong bg-card font-mono text-[13px]">
+            <div className="border-b border-line px-4 py-2.5 text-xs text-subtle">Install, no root needed</div>
+            <pre className="overflow-x-auto p-5 leading-7">
+              tar -xzf Ebb-*-linux-x64.tar.gz{"\n"}cd Ebb-*-linux-x64 &amp;&amp; ./install.sh
+            </pre>
+          </div>
+          <p className="mt-4 text-sm text-pretty text-muted">
+            It adds Ebb to your app menu. <Code>./install.sh --uninstall</Code> removes it again.
+          </p>
+          <div className="mt-6">
+            <DownloadButton download={release.linux} label="Download for Linux" />
+          </div>
+        </div>
+        <div className="border-t border-line bg-card p-4 md:p-8 lg:border-t-0 lg:border-l">
+          <div className="border border-line-strong">
+            <Shot name="linux" alt="Ebb on Linux: the System page with the pacman cache, app caches and system logs" width={2480} height={1600} sizes="(min-width: 1024px) 640px, 100vw" />
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
 function Faq({ release }: { release: Release }) {
   const faqs: { q: string; a: ReactNode }[] = [
     { q: "Is Ebb free?", a: "Yes. It's open source under the MIT license. No ads, no account, no upsell." },
+    {
+      q: "Does it work on Linux?",
+      a: "Yes, on 64-bit Linux: Arch and Omarchy, Ubuntu, Fedora and others. Instead of Windows' leftovers, its System page covers package caches, the journal, Flatpak and ~/.cache, and removed files go to the Trash.",
+    },
     {
       q: "Why does Windows say “Windows protected your PC”?",
       a: "Ebb isn't code-signed yet, so SmartScreen doesn't recognise it. Click More info, then Run anyway. Every line of the code is on GitHub.",
@@ -315,7 +368,8 @@ function Faq({ release }: { release: Release }) {
       q: "Which download should I get?",
       a: (
         <>
-          The main download ({release.full.size ?? "about 72 MB"}) has everything it needs. If you already have the{" "}
+          On Linux, the tarball ({release.linux.size ?? "about 40 MB"}). On Windows, the main download (
+          {release.full.size ?? "about 72 MB"}) has everything it needs. If you already have the{" "}
           <a href="https://dotnet.microsoft.com/download/dotnet/8.0" className="underline underline-offset-4 hover:text-fg">
             .NET 8 Desktop Runtime
           </a>
@@ -329,11 +383,11 @@ function Faq({ release }: { release: Release }) {
     },
     {
       q: "Can I undo a cleanup?",
-      a: "Files go to the Recycle Bin by default, so you can restore them from there. node_modules is deleted for good, but npm install brings it back. Everything removed is in the cleanup log.",
+      a: "Files go to the Recycle Bin (the Trash on Linux) by default, so you can restore them from there. node_modules is deleted for good, but npm install brings it back. Everything removed is in the cleanup log.",
     },
     {
       q: "Does it need admin rights?",
-      a: "Only to shrink a WSL or Docker disk, turn hibernation off, or run Windows' component cleanup. Windows asks you each time. Everything else runs as you.",
+      a: "On Windows, only to shrink a WSL or Docker disk, turn hibernation off, or run Windows' component cleanup, and Windows asks you each time. On Linux, cleaning the package cache or system logs runs that tool through pkexec, which asks for your password. Everything else runs as you.",
     },
     {
       q: "Does it send my data anywhere?",
@@ -363,7 +417,7 @@ function Faq({ release }: { release: Release }) {
 
 function Cta({ release }: { release: Release }) {
   return (
-    <Section className="border-b-0">
+    <Section id="download" className="border-b-0">
       <PixelRain density={0.7} className="absolute inset-0 size-full [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]" />
       <div className="relative px-6 py-24 text-center md:py-32">
         <h2 className="mx-auto max-w-2xl text-4xl font-medium tracking-tighter text-balance md:text-6xl">
@@ -371,7 +425,7 @@ function Cta({ release }: { release: Release }) {
         </h2>
         <p className="mx-auto mt-5 max-w-md text-balance text-muted">One scan, a plain answer, and nothing deleted until you say so.</p>
         <div className="mt-9 flex flex-wrap justify-center gap-3">
-          <DownloadButton download={release.full} />
+          <DownloadButtons release={release} />
           <SecondaryButton href={`${repoUrl}/releases`}>
             All releases
             <ArrowIcon className="size-4" />

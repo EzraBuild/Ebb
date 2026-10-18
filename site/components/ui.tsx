@@ -26,14 +26,18 @@ export function SectionHead({ label, title, children }: { label: string; title: 
   );
 }
 
-export function DownloadButton({ download, className = "" }: { download: Download; className?: string }) {
+export function DownloadButton({ download, label = "Download for Windows", primary = true }: {
+  download: Download;
+  label?: string;
+  primary?: boolean;
+}) {
+  const look = primary
+    ? "bg-fg text-bg hover:opacity-85"
+    : "border border-line-strong bg-bg hover:border-fg";
   return (
-    <a
-      href={download.url}
-      className={`inline-flex h-11 items-center gap-2.5 bg-fg px-5 text-sm font-medium text-bg transition-opacity hover:opacity-85 ${className}`}
-    >
+    <a href={download.url} className={`inline-flex h-11 items-center gap-2.5 px-5 text-sm font-medium transition ${look}`}>
       <DownloadIcon className="size-4" />
-      Download for Windows
+      {label}
       {download.size && <span className="font-mono text-xs opacity-55">{download.size}</span>}
     </a>
   );
