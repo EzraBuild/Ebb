@@ -22,4 +22,19 @@ public static class DefaultDetectors
         new LargeVideosDetector(),
         new DuplicatesDetector(new DuplicateFinder()),
     ];
+
+    public static IReadOnlyList<IDetector> CreateLinux(ICommandRunner runner, IToolLocator tools, IRecycleBin trash) =>
+    [
+        new NodeModulesDetector(),
+        new PackageCacheDetector(),
+        new DockerDetector(new NoWslDistros(), runner, tools),
+        new SystemPackageCacheDetector(tools),
+        new JournalDetector(runner, tools),
+        new FlatpakDetector(tools),
+        new UserCacheDetector(),
+        new TrashDetector(trash),
+        new DownloadsDetector(),
+        new LargeVideosDetector(),
+        new DuplicatesDetector(new DuplicateFinder()),
+    ];
 }

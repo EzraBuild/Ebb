@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Ebb.Core.Findings;
@@ -16,9 +16,13 @@ public sealed partial class DockerDetector(IWslDistroSource distros, ICommandRun
     public async Task<IReadOnlyList<Finding>> DetectAsync(ScanContext context, CancellationToken cancellationToken)
     {
         var findings = new List<Finding>();
-        var dockerFolder = Path.Combine(context.Paths.LocalAppData, "Docker");
+        var linux = context.Paths.IsLinux;
+        var dockerFolder = linux
+            ? Path.Combine(context.Paths.SystemDrive, "var", "lib", "docker")
+            : Path.Combine(context.Paths.LocalAppData, "Docker");
 
-        foreach (var disk in DataDisks(context))
+        // On Linux Docker keeps its data in plain folders, so there's no disk file to shrink.
+        foreach (var disk in linux ? [] : DataDisks(context))
         {
             var bytes = context.SizeOf(disk);
             if (bytes == 0)
@@ -38,7 +42,7 @@ public sealed partial class DockerDetector(IWslDistroSource distros, ICommandRun
         }
 
         if (tools.Find("docker") is { } docker)
-            findings.Add(await PruneFindingAsync(docker, dockerFolder, cancellationToken));
+            findings.Add(await PruneFindingAsync(docker, dockerFolder, linux, cancellationToken));
 
         return findings;
     }
@@ -53,14 +57,16 @@ public sealed partial class DockerDetector(IWslDistroSource distros, ICommandRun
         return known.Concat(registered).Distinct(StringComparer.OrdinalIgnoreCase);
     }
 
-    private async Task<Finding> PruneFindingAsync(string docker, string dockerFolder, CancellationToken cancellationToken)
+    private async Task<Finding> PruneFindingAsync(string docker, string dockerFolder, bool linux, CancellationToken cancellationToken)
     {
         var df = await runner.RunAsync(docker, ["system", "df", "--format", "{{json .}}"], TimeSpan.FromSeconds(20), cancellationToken);
         var bytes = df.Succeeded ? Reclaimable(df.Output) : null;
         var reason = "Stopped containers, unused networks, dangling images and build cache. Images in use and your " +
                      "volumes are kept. Uses Docker's own cleanup command.";
         if (bytes is null)
-            reason += " Docker isn't running right now, so the size is unknown. Start Docker Desktop to run it.";
+            reason += linux
+                ? " Docker didn't answer, so the size is unknown. Start Docker, and make sure you're in the docker group."
+                : " Docker isn't running right now, so the size is unknown. Start Docker Desktop to run it.";
 
         return new Finding
         {
