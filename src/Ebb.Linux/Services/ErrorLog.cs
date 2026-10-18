@@ -7,7 +7,8 @@ internal static class ErrorLog
     {
         try
         {
-            var log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Ebb", "errors.log");
+            var data = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.DoNotVerify);
+            var log = Path.Combine(data, "Ebb", "errors.log");
             Directory.CreateDirectory(Path.GetDirectoryName(log)!);
             File.AppendAllText(log, $"{DateTimeOffset.Now:O} {error}{Environment.NewLine}");
         }

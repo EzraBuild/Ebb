@@ -53,7 +53,7 @@ internal static class FontConfig
     {
         var cache = Environment.GetEnvironmentVariable("XDG_CACHE_HOME") is { Length: > 0 } xdg
             ? xdg
-            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache");
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.DoNotVerify), ".cache");
         var folder = Path.Combine(cache, "fontconfig");
         return Directory.Exists(folder) && Directory.EnumerateFiles(folder, "*.cache-*").Any();
     }

@@ -19,7 +19,9 @@ public sealed class CleanupLog(string filePath)
     private readonly object _gate = new();
 
     public static string DefaultPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Ebb", "cleanup-log.jsonl");
+        // DoNotVerify: on Linux an empty string comes back while ~/.local/share doesn't exist yet.
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.DoNotVerify),
+        "Ebb", "cleanup-log.jsonl");
 
     public string FilePath => filePath;
 
