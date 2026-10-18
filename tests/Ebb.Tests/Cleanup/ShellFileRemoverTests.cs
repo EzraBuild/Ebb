@@ -13,6 +13,8 @@ public class ShellFileRemoverTests : IDisposable
     {
         var file = _sandbox.File(@"repo\.git\objects\ab\cdef", 10);
         File.SetAttributes(file, FileAttributes.ReadOnly);
+        var folder = _sandbox.Dir(@"repo\.git\objects\ro");
+        File.SetAttributes(folder, FileAttributes.Directory | FileAttributes.ReadOnly);
         var single = _sandbox.File("single.txt", 10);
         File.SetAttributes(single, FileAttributes.ReadOnly);
 
@@ -22,6 +24,48 @@ public class ShellFileRemoverTests : IDisposable
 
         Assert.False(Directory.Exists(_sandbox.PathOf("repo")));
         Assert.False(File.Exists(single));
+    }
+
+    [Fact]
+    public void Permanently_deletes_big_trees_and_leaves_nothing_behind()
+    {
+        for (var i = 0; i < 300; i++)
+            _sandbox.File($@"app\node_modules\pkg{i % 30}\lib\f{i}.js", 100);
+
+        new ShellFileRemover().Remove(_sandbox.PathOf(@"app\node_modules"), RemovalMode.Permanent);
+
+        Assert.Empty(Directory.GetFileSystemEntries(_sandbox.PathOf("app")));
+    }
+
+    [Fact]
+    public void Removes_links_inside_but_never_what_they_point_to()
+    {
+        var store = _sandbox.File(@"store\pkg\index.js", 10);
+        _sandbox.File(@"app\node_modules\.pnpm\a\index.js", 10);
+        _sandbox.Junction(@"app\node_modules\pkg", _sandbox.PathOf(@"store\pkg"));
+
+        new ShellFileRemover().Remove(_sandbox.PathOf(@"app\node_modules"), RemovalMode.Permanent);
+
+        Assert.Empty(Directory.GetFileSystemEntries(_sandbox.PathOf("app")));
+        Assert.True(File.Exists(store));
+    }
+
+    [Fact]
+    public void Deletes_nothing_from_a_folder_that_is_in_use()
+    {
+        var open = _sandbox.File(@"app\node_modules\a\index.js", 10);
+        var other = _sandbox.File(@"app\node_modules\b\index.js", 10);
+
+        using (new FileStream(open, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+        {
+            var error = Assert.Throws<IOException>(() =>
+                new ShellFileRemover().Remove(_sandbox.PathOf(@"app\node_modules"), RemovalMode.Permanent));
+            Assert.Contains("in use", error.Message);
+        }
+
+        Assert.True(File.Exists(open));
+        Assert.True(File.Exists(other));
+        Assert.Single(Directory.GetFileSystemEntries(_sandbox.PathOf("app")));
     }
 
     [Fact]

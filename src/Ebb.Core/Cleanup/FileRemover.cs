@@ -24,7 +24,7 @@ public sealed class ShellFileRemover : IFileRemover
         if (mode == RemovalMode.RecycleBin)
             ShellDelete(path, toRecycleBin: true);
         else if (Directory.Exists(path))
-            DeleteFolder(path);
+            FolderDelete.Run(path);
         else
             DeleteFile(path);
     }
@@ -60,21 +60,6 @@ public sealed class ShellFileRemover : IFileRemover
     {
         File.SetAttributes(path, FileAttributes.Normal);
         File.Delete(path);
-    }
-
-    private static void DeleteFolder(string path)
-    {
-        try
-        {
-            Directory.Delete(path, recursive: true);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // Read-only files (common in .git and node_modules) block Directory.Delete.
-            foreach (var file in Directory.EnumerateFiles(path, "*", new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = 0 }))
-                File.SetAttributes(file, FileAttributes.Normal);
-            Directory.Delete(path, recursive: true);
-        }
     }
 
     private const uint FO_DELETE = 3;
