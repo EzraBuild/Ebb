@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Builds and runs on Linux and Windows. Tests that need a real Linux are skipped elsewhere. -->
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="xunit" Version="2.9.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The same sandbox and fakes as the Windows tests. -->
+    <Compile Include="..\Ebb.Tests\TestSandbox.cs" Link="Shared\TestSandbox.cs" />
+    <Compile Include="..\Ebb.Tests\Fakes.cs" Link="Shared\Fakes.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Ebb.Core\Ebb.Core.csproj" />
+  </ItemGroup>
+
+</Project>
