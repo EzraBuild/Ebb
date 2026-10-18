@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -17,17 +17,58 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet test -c Release
 
-      - name: Build the downloads and publish the release
+      - name: Build the Windows downloads
         env:
-          GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
           $version = $env:TAG.TrimStart('v')
           $common = '-c', 'Release', '-r', 'win-x64', "-p:Version=$version", '-p:DebugType=none'
           dotnet publish src/Ebb.App @common --self-contained -o out/full/Ebb
           dotnet publish src/Ebb.App @common --no-self-contained -o out/small/Ebb
-          $full = "Ebb-$version-win-x64.zip"
-          $small = "Ebb-$version-win-x64-needs-dotnet8.zip"
-          Compress-Archive out/full/Ebb $full
-          Compress-Archive out/small/Ebb $small
-          gh release create $env:TAG $full $small --title "Ebb $env:TAG" --notes-file .github/release-notes.md
+          New-Item -ItemType Directory dist | Out-Null
+          Compress-Archive out/full/Ebb "dist/Ebb-$version-win-x64.zip"
+          Compress-Archive out/small/Ebb "dist/Ebb-$version-win-x64-needs-dotnet8.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test tests/Ebb.Linux.Tests -c Release
+
+      - name: Build the Linux download
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          name="Ebb-$version-linux-x64"
+          dotnet publish src/Ebb.Linux -c Release -r linux-x64 --self-contained -p:Version="$version" -p:DebugType=none -o "out/$name/app"
+          cp packaging/linux/install.sh packaging/linux/ebb.desktop packaging/linux/ebb.svg "out/$name/"
+          chmod +x "out/$name/install.sh" "out/$name/app/ebb"
+          mkdir dist
+          tar -czf "dist/$name.tar.gz" -C out "$name"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/
+
+  release:
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" dist/* --title "Ebb $TAG" --notes-file .github/release-notes.md

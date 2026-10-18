@@ -8,7 +8,7 @@ on:
     paths-ignore: ['site/**']
 
 jobs:
-  test:
+  windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -16,3 +16,12 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - run: dotnet test -c Release
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test tests/Ebb.Linux.Tests -c Release
