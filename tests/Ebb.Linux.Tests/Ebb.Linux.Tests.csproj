@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ebb.Core\Ebb.Core.csproj" />
+    <ProjectReference Include="..\..\src\Ebb.Linux\Ebb.Linux.csproj" />
   </ItemGroup>
 
 </Project>
