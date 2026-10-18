@@ -6,7 +6,7 @@ Most disk tools show *where* the space went. Ebb also tells you *what it is* and
 
 ## Download
 
-Get the latest zip from [Releases](https://github.com/EzraBuild/Ebb/releases), unzip it and run `Ebb.exe`. Windows 10/11, 64-bit.
+Get it from **[ebb-tau.vercel.app](https://ebb-tau.vercel.app)** or [Releases](https://github.com/EzraBuild/Ebb/releases), unzip it and run `Ebb.exe`. Windows 10/11, 64-bit.
 
 - `Ebb-…-win-x64.zip` (about 70 MB) needs nothing installed.
 - `Ebb-…-win-x64-needs-dotnet8.zip` (about 3 MB) needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0).
@@ -89,6 +89,7 @@ src/Ebb.Core     scanner, detectors, cleanup planner/executor, path guard, log, 
 src/Ebb.Helper   the admin helper (fixed operations only)
 src/Ebb.App      WPF + WPF-UI app: monochrome, square corners, Geist
 tests/Ebb.Tests  xUnit tests (sandboxed)
+site             the website (Next.js on Vercel, deploys on every push)
 ```
 
 ## License
