@@ -111,6 +111,22 @@ public class CleanupPlannerTests : IDisposable
         Assert.True(plan.Steps[1].IsPermanent(RemovalMode.RecycleBin));
     }
 
+    [Fact]
+    public void Things_a_tool_brings_back_skip_the_recycle_bin()
+    {
+        var folder = _layout.Dir(@"src\app\node_modules");
+        var finding = Finding("nm", new RemoveItems("Running npm install"),
+            new FindingItem(folder, 20L * 1024 * 1024 * 1024, DateTime.UtcNow, SelectedByDefault: true));
+
+        var step = Assert.Single(Planner().Plan([finding]).Steps);
+
+        Assert.True(step.SkipsRecycleBin);
+        Assert.True(step.IsPermanent(RemovalMode.RecycleBin));
+        Assert.Equal(RemovalMode.Permanent, step.RemovalFor(RemovalMode.RecycleBin));
+        Assert.Contains("Running npm install brings them back", step.Description);
+        Assert.Empty(step.Warnings); // no "too big for the Recycle Bin" warning, it doesn't go there
+    }
+
     internal static FindingItem Item(string path, bool selected = true) =>
         new(path, File.Exists(path) ? new FileInfo(path).Length : 0, DateTime.UtcNow, SelectedByDefault: selected);
 

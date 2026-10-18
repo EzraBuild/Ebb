@@ -96,6 +96,7 @@ public class DeveloperDetectorTests : IDisposable
         Assert.Equal(2, finding.Items.Count);
         Assert.True(finding.Items.Single(i => i.Path.Contains("old-app")).SelectedByDefault);
         Assert.False(finding.Items.Single(i => i.Path.Contains("fresh-app")).SelectedByDefault);
+        Assert.Contains("npm install", Assert.IsType<RemoveItems>(finding.Action).RebuiltBy);
     }
 
     private void Project(string folder, int daysAgo)

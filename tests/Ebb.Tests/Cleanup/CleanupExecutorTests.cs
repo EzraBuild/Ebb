@@ -69,6 +69,22 @@ public class CleanupExecutorTests : IDisposable
     }
 
     [Fact]
+    public async Task Deletes_things_a_tool_brings_back_for_good()
+    {
+        var folder = _layout.Dir(@"src\app\node_modules");
+        var remover = new RecordingRemover();
+        var plan = Plan(Finding("nm", new RemoveItems("Running npm install"),
+            new FindingItem(folder, 3000, DateTime.UtcNow, SelectedByDefault: true)));
+
+        var report = await Executor(remover).ExecuteAsync(plan); // the plan is in Recycle Bin mode
+
+        Assert.Equal([(folder, RemovalMode.Permanent)], remover.Removed);
+        Assert.Equal(3000, report.FreedBytes);
+        Assert.Equal(0, report.RecycledBytes);
+        Assert.Equal("delete", Assert.Single(_log.Read()).Action);
+    }
+
+    [Fact]
     public async Task Checks_the_guard_again_right_before_removing()
     {
         var system = _layout.File(@"Windows\System32\kernel.dll", 10);

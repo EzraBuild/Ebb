@@ -53,16 +53,22 @@ public sealed class PlanStep
 
     public string? ToolPath { get; init; }
 
+    /// <summary>The items are deleted for good whatever the plan's mode, because a tool brings them back.</summary>
+    public bool SkipsRecycleBin { get; init; }
+
     public string Title => Finding.Title;
 
     public IEnumerable<PlanItem> SelectedItems => Items.Where(i => i.Selected);
 
     public long EstimatedBytes => Kind == StepKind.RemoveItems ? SelectedItems.Sum(i => i.Bytes) : Finding.Bytes ?? 0;
 
+    /// <summary>How this step's items are removed when the plan's mode is <paramref name="mode"/>.</summary>
+    public RemovalMode RemovalFor(RemovalMode mode) => SkipsRecycleBin ? RemovalMode.Permanent : mode;
+
     /// <summary>True when the result can't be undone from the Recycle Bin.</summary>
     public bool IsPermanent(RemovalMode mode) => Kind switch
     {
-        StepKind.RemoveItems => mode == RemovalMode.Permanent,
+        StepKind.RemoveItems => RemovalFor(mode) == RemovalMode.Permanent,
         StepKind.CompactDisk => false, // deletes nothing
         _ => true,
     };

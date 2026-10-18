@@ -26,6 +26,9 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
 
     private (PlanStep? Step, string? Skipped) Build(Finding finding) => finding.Action switch
     {
+        RemoveItems { RebuiltBy: { } rebuiltBy } => RemoveStep(finding,
+            $"Deletes the ticked items below for good. {rebuiltBy} brings them back. They skip the Recycle Bin: " +
+            "with this many files it's slow, and it frees nothing until it's emptied.", skipsRecycleBin: true),
         RemoveItems => RemoveStep(finding, "Removes the ticked items below."),
         RunTool tool => ToolStep(finding, tool),
         RunElevated elevated => (new PlanStep
@@ -77,7 +80,7 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
             : RemoveStep(finding, $"{tool.Tool} isn't installed, so Ebb removes the cache folders below instead.");
     }
 
-    private (PlanStep?, string?) RemoveStep(Finding finding, string description)
+    private (PlanStep?, string?) RemoveStep(Finding finding, string description, bool skipsRecycleBin = false)
     {
         var items = finding.Items
             .Select(i => new PlanItem(i.Path, i.Bytes, i.Note, i.SelectedByDefault, guard.Check(i.Path)))
@@ -91,7 +94,8 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
             Kind = StepKind.RemoveItems,
             Description = description,
             Items = items,
-            Warnings = items.Any(i => i.Bytes >= MayNotFitInBin)
+            SkipsRecycleBin = skipsRecycleBin,
+            Warnings = !skipsRecycleBin && items.Any(i => i.Bytes >= MayNotFitInBin)
                 ? ["Some of these may be too big for the Recycle Bin. Windows will ask before deleting those for good."]
                 : [],
         }, null);

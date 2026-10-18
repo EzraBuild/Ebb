@@ -60,7 +60,7 @@ public sealed class CleanupExecutor(
             {
                 results.Add(step.Kind switch
                 {
-                    StepKind.RemoveItems => await RemoveAsync(step, plan.RemovalMode, cancellationToken),
+                    StepKind.RemoveItems => await RemoveAsync(step, step.RemovalFor(plan.RemovalMode), cancellationToken),
                     StepKind.RunTool => await RunToolAsync(step, cancellationToken),
                     StepKind.RunElevated => await RunElevatedAsync(step, cancellationToken),
                     StepKind.EmptyRecycleBin => EmptyBin(step),

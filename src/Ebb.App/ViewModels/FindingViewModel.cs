@@ -47,6 +47,9 @@ public sealed partial class FindingViewModel : ObservableObject
 
     public string ActionText => Finding.Action switch
     {
+        RemoveItems { RebuiltBy: not null } =>
+            $"Deletes {Display.Count(Finding.Items.Count, "item", "items")} for good, skipping the Recycle Bin. " +
+            "You can untick any before it starts.",
         RemoveItems => Finding.Items.Count > 1
             ? $"Removes {Display.Count(Finding.Items.Count, "item", "items")}. You can untick any before it starts."
             : "Removes it. You'll see it before it starts.",

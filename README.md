@@ -28,6 +28,7 @@ A **Biggest folders** view lets you browse anything the findings don't explain.
 Safety rules built in:
 
 - **Recycle Bin by default.** Untick it to delete permanently. Windows asks before deleting anything too big for the bin.
+- **Except `node_modules`**, which is deleted for good (and shown as such before you confirm): `npm install` brings it back, and sending hundreds of thousands of files to the bin is slow and frees nothing until it's emptied. Ebb deletes it many files at a time, about 10× faster than one by one. A folder that's in use (say, by a running dev server) is left untouched. Links inside it (pnpm) are removed, never followed.
 - **Each tool's own command where one exists:** `docker system prune -f`, `dotnet nuget locals all --clear`, `npm cache clean --force`, `pip cache purge`, `yarn cache clean`, `pnpm store prune`.
 - **Never touches system files directly.** Windows, Program Files and ProgramData are off limits. System leftovers are handled by Windows' own tools: Disk Cleanup, `DISM /StartComponentCleanup` and `powercfg /hibernate off`.
 - **A path guard checks every item twice:** once when the plan is made, and again right before it's removed. It refuses drive-level items, your main folders themselves, other users' files, system files and links.

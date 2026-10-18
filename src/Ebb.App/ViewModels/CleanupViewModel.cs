@@ -178,7 +178,7 @@ public sealed partial class StepViewModel : ObservableObject
         get
         {
             var ticked = Items.Count(i => i.Selected);
-            var verb = _plan.RemovalMode == RemovalMode.RecycleBin ? "go to the Recycle Bin" : "get deleted for good";
+            var verb = Step.RemovalFor(_plan.RemovalMode) == RemovalMode.RecycleBin ? "go to the Recycle Bin" : "get deleted for good";
             return $"{ticked:N0} of {Items.Count:N0} ticked · these {verb}";
         }
     }

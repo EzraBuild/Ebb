@@ -42,7 +42,7 @@ public sealed class NodeModulesDetector : Detector
             Safety = Safety.Safe,
             Bytes = items.Sum(i => i.Bytes),
             Items = items.OrderByDescending(i => i.Bytes).ToList(),
-            Action = new RemoveItems(),
+            Action = new RemoveItems(RebuiltBy: "Running npm install (or pnpm, yarn) in a project"),
         };
     }
 
