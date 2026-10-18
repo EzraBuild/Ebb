@@ -88,6 +88,7 @@ public class DeveloperDetectorTests : IDisposable
         _layout.File(@"Users\me\.vscode\extensions\ext\node_modules\x\i.js", MB);
         _layout.File(@"Users\me\AppData\Roaming\npm\package.json", 10);
         _layout.File(@"Users\me\AppData\Roaming\npm\node_modules\x\i.js", MB);
+        Project(@"$Recycle.Bin\S-1-5-21-1000\$RYG5JUD\deleted-app", daysAgo: 60); // already in the Recycle Bin
 
         var finding = Assert.Single(await Run(new NodeModulesDetector(), _layout.Context()));
 

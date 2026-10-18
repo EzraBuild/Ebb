@@ -18,7 +18,7 @@ public sealed class NodeModulesDetector : Detector
         {
             cancellationToken.ThrowIfCancellationRequested();
             var project = Path.GetDirectoryName(path)!;
-            if (notProjects.Any(folder => PathUtil.IsUnder(path, folder)) || InDotFolder(path) ||
+            if (notProjects.Any(folder => PathUtil.IsUnder(path, folder)) || InToolOrWindowsFolder(path) ||
                 !File.Exists(Path.Combine(project, "package.json")))
                 continue;
 
@@ -46,9 +46,12 @@ public sealed class NodeModulesDetector : Detector
         };
     }
 
-    // Folders like .vscode, .cursor or .nvm belong to tools, not to your projects.
-    private static bool InDotFolder(string path) =>
-        path.Split(Path.DirectorySeparatorChar).Any(segment => segment.StartsWith('.'));
+    // Folders like .vscode, .cursor or .nvm belong to tools, not to your projects. Ones like $Recycle.Bin
+    // (projects you already deleted) and System Volume Information belong to Windows.
+    private static bool InToolOrWindowsFolder(string path) =>
+        path.Split(Path.DirectorySeparatorChar).Any(segment =>
+            segment.StartsWith('.') || segment.StartsWith('$') ||
+            segment.Equals("System Volume Information", StringComparison.OrdinalIgnoreCase));
 
     private static DateTime Max(DateTime a, DateTime b) => a > b ? a : b;
 }
