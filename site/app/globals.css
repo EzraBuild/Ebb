@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #666666;
+  --subtle: #8f8f8f;
+  --card: #fafafa;
+  --line: rgb(0 0 0 / 0.09);
+  --line-strong: rgb(0 0 0 / 0.18);
+  --rain: 10, 10, 10;
+  --rain-strength: 0.55;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #050505;
+  --fg: #fafafa;
+  --muted: #a1a1a1;
+  --subtle: #6b6b6b;
+  --card: #0b0b0b;
+  --line: rgb(255 255 255 / 0.09);
+  --line-strong: rgb(255 255 255 / 0.2);
+  --rain: 250, 250, 250;
+  --rain-strength: 1;
+  color-scheme: dark;
+}
+
+/* Before the theme script runs, or without JavaScript. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #050505;
+    --fg: #fafafa;
+    --muted: #a1a1a1;
+    --subtle: #6b6b6b;
+    --card: #0b0b0b;
+    --line: rgb(255 255 255 / 0.09);
+    --line-strong: rgb(255 255 255 / 0.2);
+    --rain: 250, 250, 250;
+    --rain-strength: 1;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* Geist Mono joins " --" into one glyph, which hides the space in commands. */
+.font-mono,
+code,
+pre {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* One picture per theme: the app's own screenshots come in both. */
+.only-dark {
+  display: none;
+}
+
+:root[data-theme="dark"] .only-dark {
+  display: block;
+}
+
+:root[data-theme="dark"] .only-light {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .only-dark {
+    display: block;
+  }
+
+  :root:not([data-theme]) .only-light {
+    display: none;
+  }
+}
+
+/* Dashed rules, like the app's KEEP badge. */
+.dashed {
+  background-image: linear-gradient(to right, var(--line-strong) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
+
+details > summary {
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
