@@ -35,7 +35,7 @@ public sealed class DirNode
             return null;
         foreach (var child in _children)
         {
-            if (string.Equals(child.Name, name, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(child.Name, name, PathUtil.Comparison))
                 return child;
         }
         return null;

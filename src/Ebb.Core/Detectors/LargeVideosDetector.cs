@@ -15,8 +15,7 @@ public sealed class LargeVideosDetector(long minBytes = 100L * 1024 * 1024) : De
         var p = context.Paths;
         var videos = context.Scan.LargeFiles
             .Where(f => f.Size >= minBytes && VideoTypes.Contains(Path.GetExtension(f.Path)))
-            .Where(f => PathUtil.IsUnder(f.Path, p.UserProfile) &&
-                        !PathUtil.IsUnder(f.Path, p.LocalAppData) && !PathUtil.IsUnder(f.Path, p.RoamingAppData))
+            .Where(f => PathUtil.IsUnder(f.Path, p.UserProfile) && !p.AppDataFolders.Any(folder => PathUtil.IsUnder(f.Path, folder)))
             .Select(f => new FindingItem(f.Path, f.Size, f.LastWriteUtc,
                 $"changed {TimeText.Ago(f.LastWriteUtc, context.NowUtc)}", SelectedByDefault: false))
             .ToList();

@@ -58,7 +58,7 @@ public sealed class ScanResult
             foreach (var child in node.Children)
             {
                 var childPath = Path.Join(path, child.Name);
-                if (string.Equals(child.Name, name, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(child.Name, name, PathUtil.Comparison))
                     yield return (childPath, child);
                 else
                     stack.Push((childPath, child));

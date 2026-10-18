@@ -62,6 +62,9 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
 
     private (PlanStep?, string?) ToolStep(Finding finding, RunTool tool)
     {
+        if (tool.AsRoot)
+            return RootToolStep(finding, tool);
+
         if (tools.Find(tool.Tool) is { } toolPath)
         {
             return (new PlanStep
@@ -78,6 +81,25 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
         return finding.Items.Count == 0
             ? (null, $"{tool.Tool} isn't installed.")
             : RemoveStep(finding, $"{tool.Tool} isn't installed, so Ebb removes the cache folders below instead.");
+    }
+
+    private (PlanStep?, string?) RootToolStep(Finding finding, RunTool tool)
+    {
+        if (tools.Find(tool.Tool) is not { } toolPath)
+            return (null, $"{tool.Tool} isn't installed.");
+        if (tools.Find("pkexec") is not { } pkexec)
+            return (null, $"Needs root, and pkexec (polkit) isn't installed. Run “sudo {string.Join(' ', [tool.Tool, .. tool.Arguments])}” yourself.");
+
+        return (new PlanStep
+        {
+            Finding = finding,
+            Kind = StepKind.RunTool,
+            Description = $"Runs {tool.Tool}'s own cleanup command as root. Your system asks for your password first.",
+            CommandLine = tool.CommandLine,
+            ToolPath = toolPath,
+            ElevatorPath = pkexec,
+            NeedsAdmin = true,
+        }, null);
     }
 
     private (PlanStep?, string?) RemoveStep(Finding finding, string description, bool skipsRecycleBin = false)

@@ -146,6 +146,7 @@ public sealed class DriveScanner
 
         private void Process(DirNode node, string path)
         {
+            var skip = _options.SkipFolder;
             long bytes = 0, files = 0;
             List<DirNode>? children = null;
             try
@@ -154,9 +155,10 @@ public sealed class DriveScanner
                 {
                     if (entry.IsDirectory)
                     {
-                        return (entry.Attributes & FileAttributes.ReparsePoint) != 0
-                            ? null
-                            : new DirNode(entry.FileName.ToString(), node);
+                        if ((entry.Attributes & FileAttributes.ReparsePoint) != 0)
+                            return null;
+                        var name = entry.FileName.ToString();
+                        return skip is not null && skip(Path.Join(path, name)) ? null : new DirNode(name, node);
                     }
 
                     var size = FileSizes.OnDisk(ref entry);

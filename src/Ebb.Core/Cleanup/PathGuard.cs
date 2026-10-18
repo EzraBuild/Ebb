@@ -8,26 +8,36 @@ namespace Ebb.Core.Cleanup;
 /// </summary>
 public sealed class PathGuard
 {
+    private readonly bool _linux;
     private readonly string _systemDrive;
-    private readonly string[] _systemTrees;
+    private readonly IReadOnlyList<string> _systemTrees;
     private readonly string[] _keepExactly;
     private readonly string _usersFolder;
     private readonly string _profile;
+    private readonly string? _trash;
     private readonly string? _confineTo;
 
-    /// <param name="paths">Where Windows keeps things.</param>
+    /// <param name="paths">Where the system keeps things.</param>
     /// <param name="confineTo">If set, nothing outside this folder may ever be removed (used by tests).</param>
     public PathGuard(SystemPaths paths, string? confineTo = null)
     {
+        _linux = paths.IsLinux;
         _systemDrive = paths.SystemDrive;
-        _systemTrees = [paths.Windows, paths.ProgramFiles, paths.ProgramFilesX86, paths.ProgramData];
-        _keepExactly =
-        [
-            paths.UserProfile, paths.LocalAppData, paths.RoamingAppData, Path.GetDirectoryName(paths.LocalAppData)!,
-            paths.Temp, paths.Downloads, .. paths.PersonalFolders,
-        ];
+        _systemTrees = paths.SystemFolders;
+        _keepExactly = paths.IsLinux
+            ?
+            [
+                paths.UserProfile, .. paths.AppDataFolders, paths.Data, paths.Trash, paths.Temp, paths.Downloads,
+                .. paths.PersonalFolders,
+            ]
+            :
+            [
+                paths.UserProfile, paths.LocalAppData, paths.RoamingAppData, Path.GetDirectoryName(paths.LocalAppData)!,
+                paths.Temp, paths.Downloads, .. paths.PersonalFolders,
+            ];
         _profile = paths.UserProfile;
         _usersFolder = Path.GetDirectoryName(paths.UserProfile)!;
+        _trash = paths.IsLinux ? paths.Trash : null;
         _confineTo = confineTo;
     }
 
@@ -46,12 +56,17 @@ public sealed class PathGuard
             return "Top-level folders and files on a drive are never removed.";
 
         if (_systemTrees.Any(tree => PathUtil.IsSameOrUnder(full, tree)))
-            return "Windows and app install folders are never touched directly.";
+            return _linux
+                ? "System and package folders are never touched directly."
+                : "Windows and app install folders are never touched directly.";
 
-        if (full.Split(Path.DirectorySeparatorChar).Any(s =>
+        if (!_linux && full.Split(Path.DirectorySeparatorChar).Any(s =>
                 s.Equals("$Recycle.Bin", StringComparison.OrdinalIgnoreCase) ||
                 s.Equals("System Volume Information", StringComparison.OrdinalIgnoreCase)))
             return "Windows manages this folder.";
+
+        if (_trash is not null && PathUtil.IsUnder(full, _trash))
+            return "It's in the Trash. Empty the Trash instead.";
 
         if (_keepExactly.Any(keep => PathUtil.SamePath(full, keep)))
             return "This is one of your main folders. Ebb only removes things inside it.";

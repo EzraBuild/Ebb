@@ -9,7 +9,8 @@ public sealed class DownloadsDetector : Detector
     private static readonly HashSet<string> InstallerTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         ".exe", ".msi", ".msix", ".msixbundle", ".appx", ".appxbundle",
-        ".zip", ".7z", ".rar", ".tar", ".gz", ".tgz", ".iso", ".img",
+        ".appimage", ".deb", ".rpm", ".run", ".flatpak",
+        ".zip", ".7z", ".rar", ".tar", ".gz", ".tgz", ".xz", ".bz2", ".zst", ".iso", ".img",
     };
 
     protected override IEnumerable<Finding> Detect(ScanContext context, CancellationToken cancellationToken)

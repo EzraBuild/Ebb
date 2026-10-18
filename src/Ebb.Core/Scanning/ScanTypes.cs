@@ -1,4 +1,4 @@
-﻿namespace Ebb.Core.Scanning;
+namespace Ebb.Core.Scanning;
 
 public sealed record ScanOptions
 {
@@ -9,6 +9,12 @@ public sealed record ScanOptions
     public long PruneBelow { get; init; } = 1024 * 1024;
 
     public int MaxParallelism { get; init; } = Math.Clamp(Environment.ProcessorCount, 8, 16);
+
+    /// <summary>
+    /// Folders not to go into, by full path. On Linux: other drives mounted inside this one, and
+    /// /proc-style system file systems that take no disk space.
+    /// </summary>
+    public Func<string, bool>? SkipFolder { get; init; }
 }
 
 public readonly record struct ScanProgress(long Files, long Folders, long Bytes);

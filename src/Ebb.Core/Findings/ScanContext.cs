@@ -9,7 +9,7 @@ public sealed class ScanContext
 {
     private static readonly EnumerationOptions TopLevel = new() { IgnoreInaccessible = true, AttributesToSkip = 0 };
 
-    private readonly ConcurrentDictionary<string, long> _sizes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, long> _sizes = new(PathUtil.Comparer);
     private readonly Lazy<Dictionary<string, LargeFile>> _largeFiles;
 
     public ScanContext(ScanResult scan, SystemPaths paths, DateTime? nowUtc = null)
@@ -17,7 +17,7 @@ public sealed class ScanContext
         Scan = scan;
         Paths = paths;
         NowUtc = nowUtc ?? DateTime.UtcNow;
-        _largeFiles = new(() => scan.LargeFiles.ToDictionary(f => f.Path, StringComparer.OrdinalIgnoreCase));
+        _largeFiles = new(() => scan.LargeFiles.ToDictionary(f => f.Path, PathUtil.Comparer));
     }
 
     public ScanResult Scan { get; }

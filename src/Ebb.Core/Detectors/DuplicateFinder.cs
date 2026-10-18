@@ -22,7 +22,7 @@ public sealed class DuplicateFinder(long minSize = 1024 * 1024)
 
     public IReadOnlyList<DuplicateGroup> Find(IEnumerable<string> roots, CancellationToken cancellationToken = default)
     {
-        var files = new Dictionary<string, FileRecord>(StringComparer.OrdinalIgnoreCase);
+        var files = new Dictionary<string, FileRecord>(PathUtil.Comparer);
         foreach (var root in roots.Where(Directory.Exists))
         {
             foreach (var file in Enumerate(root))

@@ -29,10 +29,12 @@ public sealed class PathToolLocator : IToolLocator
         if (Path.IsPathRooted(tool))
             return File.Exists(tool) ? tool : null;
 
-        var extensions = (Environment.GetEnvironmentVariable("PATHEXT") ?? ".COM;.EXE;.BAT;.CMD")
-            .Split(';', StringSplitOptions.RemoveEmptyEntries);
+        // Linux tools have no extension: "" checks the bare name.
+        var extensions = OperatingSystem.IsWindows()
+            ? (Environment.GetEnvironmentVariable("PATHEXT") ?? ".COM;.EXE;.BAT;.CMD").Split(';', StringSplitOptions.RemoveEmptyEntries)
+            : [""];
         var folders = (Environment.GetEnvironmentVariable("PATH") ?? "")
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (var folder in folders)
         {

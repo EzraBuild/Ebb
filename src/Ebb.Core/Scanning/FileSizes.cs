@@ -16,10 +16,14 @@ public static class FileSizes
 
     public static bool IsCloudOnly(FileAttributes attributes) => (attributes & CloudOnly) != 0;
 
+    // A symlink on Linux takes no real space; its target is counted where it lives.
+    private static bool IsUnixLink(FileAttributes attributes) =>
+        !OperatingSystem.IsWindows() && (attributes & FileAttributes.ReparsePoint) != 0;
+
     internal static long OnDisk(ref FileSystemEntry entry)
     {
         var attributes = entry.Attributes;
-        if (IsCloudOnly(attributes))
+        if (IsCloudOnly(attributes) || IsUnixLink(attributes))
             return 0;
         return (attributes & Shrunk) != 0 ? Allocated(entry.ToFullPath(), entry.Length) : entry.Length;
     }
@@ -29,7 +33,7 @@ public static class FileSizes
         if (!file.Exists)
             return 0;
         var attributes = file.Attributes;
-        if (IsCloudOnly(attributes))
+        if (IsCloudOnly(attributes) || IsUnixLink(attributes))
             return 0;
         return (attributes & Shrunk) != 0 ? Allocated(file.FullName, file.Length) : file.Length;
     }

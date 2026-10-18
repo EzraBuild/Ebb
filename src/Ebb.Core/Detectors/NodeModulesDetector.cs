@@ -11,7 +11,7 @@ public sealed class NodeModulesDetector : Detector
     {
         var p = context.Paths;
         // Apps and global tools ship node_modules too (VS Code extensions, global npm). Never touch those.
-        string[] notProjects = [p.Windows, p.ProgramFiles, p.ProgramFilesX86, p.ProgramData, p.LocalAppData, p.RoamingAppData];
+        string[] notProjects = [.. p.SystemFolders, .. p.AppDataFolders];
 
         var items = new List<FindingItem>();
         foreach (var (path, node) in context.Scan.FindDirectories("node_modules"))

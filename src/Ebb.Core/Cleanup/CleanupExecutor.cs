@@ -143,16 +143,23 @@ public sealed class CleanupExecutor(
         var tool = (RunTool)step.Finding.Action!;
         var folders = step.Finding.Items
             .Select(i => Path.GetDirectoryName(i.Path)!)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Distinct(PathUtil.Comparer)
             .ToList();
+        if (folders.Count == 0 && tool.AsRoot && step.Finding.Path is { } cache)
+            folders.Add(cache); // system caches have no items; measure the cache folder itself
         var before = folders.Sum(f => DirectorySizer.Measure(f, cancellationToken));
 
-        var result = await runner.RunAsync(step.ToolPath!, tool.Arguments, TimeSpan.FromMinutes(30), cancellationToken);
+        var result = step.ElevatorPath is { } elevator
+            ? await runner.RunAsync(elevator, [step.ToolPath!, .. tool.Arguments], TimeSpan.FromMinutes(30), cancellationToken)
+            : await runner.RunAsync(step.ToolPath!, tool.Arguments, TimeSpan.FromMinutes(30), cancellationToken);
 
         var freed = Math.Max(0, before - folders.Sum(f => DirectorySizer.Measure(f, cancellationToken)));
         var output = FirstLines(result.Succeeded ? result.Output : result.Error + result.Output);
         Log(step, "command", step.CommandLine!, freed, result.Succeeded, output);
 
+        // pkexec exits with 126 when the password prompt is closed and 127 when it isn't allowed.
+        if (step.ElevatorPath is not null && result.ExitCode is 126 or 127)
+            return new StepResult(step, StepOutcome.Skipped, 0, 0, "Nothing ran: the password prompt was closed or refused.");
         if (!result.Succeeded)
             return new StepResult(step, StepOutcome.Failed, 0, 0, $"{tool.Tool} reported a problem: {output}");
 

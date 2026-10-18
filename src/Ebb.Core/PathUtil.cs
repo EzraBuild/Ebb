@@ -1,9 +1,16 @@
 namespace Ebb.Core;
 
-/// <summary>Case-insensitive Windows path helpers.</summary>
+/// <summary>Path helpers. Case-insensitive on Windows, case-sensitive on Linux, like the file systems.</summary>
 public static class PathUtil
 {
-    /// <summary>Full path without a trailing separator (except for drive roots like <c>C:\</c>).</summary>
+    /// <summary>How paths and file names compare on this system.</summary>
+    public static StringComparison Comparison { get; } =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+    public static StringComparer Comparer { get; } =
+        OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+
+    /// <summary>Full path without a trailing separator (except for roots like <c>C:\</c> or <c>/</c>).</summary>
     public static string Normalize(string path)
     {
         var full = Path.GetFullPath(path);
@@ -13,8 +20,7 @@ public static class PathUtil
             : full;
     }
 
-    public static bool SamePath(string a, string b) =>
-        string.Equals(Normalize(a), Normalize(b), StringComparison.OrdinalIgnoreCase);
+    public static bool SamePath(string a, string b) => string.Equals(Normalize(a), Normalize(b), Comparison);
 
     /// <summary>True when <paramref name="path"/> is strictly inside <paramref name="folder"/>.</summary>
     public static bool IsUnder(string path, string folder)
@@ -22,7 +28,7 @@ public static class PathUtil
         var p = Normalize(path);
         var f = Normalize(folder);
         var prefix = f.EndsWith(Path.DirectorySeparatorChar) ? f : f + Path.DirectorySeparatorChar;
-        return p.Length > prefix.Length && p.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+        return p.Length > prefix.Length && p.StartsWith(prefix, Comparison);
     }
 
     public static bool IsSameOrUnder(string path, string folder) => SamePath(path, folder) || IsUnder(path, folder);

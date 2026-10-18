@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Microsoft.Win32;
 
 namespace Ebb.Core.Platform;
@@ -10,6 +11,7 @@ public interface IWslDistroSource
 }
 
 /// <summary>Reads installed WSL distros from the registry (read-only).</summary>
+[SupportedOSPlatform("windows")]
 public sealed class RegistryWslDistroSource : IWslDistroSource
 {
     public IReadOnlyList<WslDistro> GetDistros()
@@ -32,4 +34,10 @@ public sealed class RegistryWslDistroSource : IWslDistroSource
         }
         return distros;
     }
+}
+
+/// <summary>For Linux, where there is no WSL.</summary>
+public sealed class NoWslDistros : IWslDistroSource
+{
+    public IReadOnlyList<WslDistro> GetDistros() => [];
 }

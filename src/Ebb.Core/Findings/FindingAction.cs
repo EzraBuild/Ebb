@@ -12,9 +12,10 @@ public abstract record FindingAction;
 public sealed record RemoveItems(string? RebuiltBy = null) : FindingAction;
 
 /// <summary>Runs the tool's own clean command. If the tool isn't installed, the items are removed instead.</summary>
-public sealed record RunTool(string Tool, IReadOnlyList<string> Arguments) : FindingAction
+/// <param name="AsRoot">Linux: runs it as root through pkexec, which asks for your password first.</param>
+public sealed record RunTool(string Tool, IReadOnlyList<string> Arguments, bool AsRoot = false) : FindingAction
 {
-    public string CommandLine => string.Join(' ', [Tool, .. Arguments]);
+    public string CommandLine => string.Join(' ', [.. AsRoot ? ["pkexec"] : Array.Empty<string>(), Tool, .. Arguments]);
 }
 
 /// <summary>A Windows command that needs admin, run by Ebb.Helper.</summary>

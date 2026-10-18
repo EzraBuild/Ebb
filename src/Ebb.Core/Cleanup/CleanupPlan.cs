@@ -53,6 +53,9 @@ public sealed class PlanStep
 
     public string? ToolPath { get; init; }
 
+    /// <summary>Linux: pkexec, for tools that run as root.</summary>
+    public string? ElevatorPath { get; init; }
+
     /// <summary>The items are deleted for good whatever the plan's mode, because a tool brings them back.</summary>
     public bool SkipsRecycleBin { get; init; }
 
