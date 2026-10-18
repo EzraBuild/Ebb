@@ -17,6 +17,11 @@ export type Release = {
   small: Download;
   /** 64-bit Linux, nothing to install. */
   linux: Download;
+  /** ARM Linux (Raspberry Pi, Asahi). */
+  linuxArm: Download;
+  /** Ubuntu and Debian packages. */
+  deb: Download;
+  debArm: Download;
 };
 
 type Asset = { name: string; size: number; browser_download_url: string };
@@ -26,6 +31,9 @@ const fallback: Release = {
   full: { url: releasesUrl, size: null },
   small: { url: releasesUrl, size: null },
   linux: { url: releasesUrl, size: null },
+  linuxArm: { url: releasesUrl, size: null },
+  deb: { url: releasesUrl, size: null },
+  debArm: { url: releasesUrl, size: null },
 };
 
 /** The newest GitHub release, checked about once an hour. Falls back to the releases page. */
@@ -50,9 +58,28 @@ export async function getRelease(): Promise<Release> {
       full: pick("-win-x64.zip"),
       small: pick("-needs-dotnet8.zip"),
       linux: pick("-linux-x64.tar.gz"),
+      linuxArm: pick("-linux-arm64.tar.gz"),
+      deb: pick("_amd64.deb"),
+      debArm: pick("_arm64.deb"),
     };
   } catch {
     return fallback;
+  }
+}
+
+/** Whether ebb-bin is on the AUR yet, so the site only shows "yay -S ebb-bin" once it works. */
+export async function onAur(): Promise<boolean> {
+  "use cache";
+  cacheLife("hours");
+
+  try {
+    const response = await fetch("https://aur.archlinux.org/rpc/v5/info?arg%5B%5D=ebb-bin", {
+      headers: { "User-Agent": "ebb-site" },
+    });
+    const info: { resultcount?: number } = await response.json();
+    return (info.resultcount ?? 0) > 0;
+  } catch {
+    return false;
   }
 }
 

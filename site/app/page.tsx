@@ -4,10 +4,10 @@ import { ArrowIcon, GitHubIcon, Logo } from "@/components/icons";
 import { PixelRain } from "@/components/pixel-rain";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, Code, DownloadButton, SecondaryButton, Section, SectionHead, Shot, type Verdict } from "@/components/ui";
-import { getRelease, repoUrl, type Release } from "@/lib/release";
+import { getRelease, onAur, repoUrl, type Download, type Release } from "@/lib/release";
 
 export default async function Home() {
-  const release = await getRelease();
+  const [release, aur] = await Promise.all([getRelease(), onAur()]);
 
   return (
     <>
@@ -19,7 +19,7 @@ export default async function Home() {
         <HowItWorks />
         <Safety />
         <Disks />
-        <Linux release={release} />
+        <Linux release={release} aur={aur} />
         <Faq release={release} />
         <Cta release={release} />
       </main>
@@ -309,15 +309,33 @@ const linuxFinds: ReactNode[] = [
   "Unused Flatpak runtimes",
   <>App caches in <Code>~/.cache</Code></>,
   "yay and paru build files",
-  "The Trash",
+  "Old Snap versions",
+  "The Trash, on every drive",
 ];
 
-function Linux({ release }: { release: Release }) {
+function Install({ label, command, download, file }: { label: string; command: string; download?: Download; file?: string }) {
+  return (
+    <div className="border-t border-line px-4 py-3.5 first:border-t-0">
+      <div className="flex items-baseline justify-between gap-4 text-xs text-subtle">
+        <span>{label}</span>
+        {download && (
+          <a href={download.url} className="underline decoration-line-strong underline-offset-4 hover:text-fg">
+            {file}
+            {download.size ? ` · ${download.size}` : ""}
+          </a>
+        )}
+      </div>
+      <pre className="mt-2 overflow-x-auto leading-6 whitespace-pre-wrap">{command}</pre>
+    </div>
+  );
+}
+
+function Linux({ release, aur }: { release: Release; aur: boolean }) {
   return (
     <Section id="linux">
       <SectionHead label="Linux" title="The same Ebb, on Linux.">
-        For 64-bit Linux: Arch and Omarchy, Ubuntu, Fedora and others. It knows where Linux keeps things, uses the
-        Trash like your file manager does, and steps that need root ask for your password first.
+        For Linux on Intel, AMD and ARM: Arch and Omarchy, Ubuntu, Fedora and others. It knows where Linux keeps
+        things, uses the Trash like your file manager does, and steps that need root ask for your password first.
       </SectionHead>
       <div className="grid border-t border-line lg:grid-cols-[2fr_3fr]">
         <div className="p-6 md:p-10">
@@ -331,13 +349,20 @@ function Linux({ release }: { release: Release }) {
             ))}
           </ul>
           <div className="mt-8 border border-line-strong bg-card font-mono text-[13px]">
-            <div className="border-b border-line px-4 py-2.5 text-xs text-subtle">Install, no root needed</div>
-            <pre className="overflow-x-auto p-5 leading-7">
-              tar -xzf Ebb-*-linux-x64.tar.gz{"\n"}cd Ebb-*-linux-x64 &amp;&amp; ./install.sh
-            </pre>
+            {aur && <Install label="Arch, Omarchy, Manjaro" command="yay -S ebb-bin" />}
+            <Install label="Ubuntu, Debian, Mint" command="sudo apt install ./ebb_*_amd64.deb" download={release.deb} file=".deb" />
+            <Install
+              label="Any distro, no root needed"
+              command={"tar -xzf Ebb-*-linux-x64.tar.gz\ncd Ebb-*-linux-x64 && ./install.sh"}
+              download={release.linux}
+              file="tarball"
+            />
           </div>
           <p className="mt-4 text-sm text-pretty text-muted">
-            It adds Ebb to your app menu. <Code>./install.sh --uninstall</Code> removes it again.
+            On ARM, like a Raspberry Pi or an Asahi Mac? Get the{" "}
+            <a href={release.linuxArm.url} className="underline underline-offset-4 hover:text-fg">arm64 tarball</a> or{" "}
+            <a href={release.debArm.url} className="underline underline-offset-4 hover:text-fg">arm64 .deb</a>.
+            {" "}<Code>./install.sh --uninstall</Code> removes the tarball install again.
           </p>
           <div className="mt-6">
             <DownloadButton download={release.linux} label="Download for Linux" />
@@ -358,7 +383,7 @@ function Faq({ release }: { release: Release }) {
     { q: "Is Ebb free?", a: "Yes. It's open source under the MIT license. No ads, no account, no upsell." },
     {
       q: "Does it work on Linux?",
-      a: "Yes, on 64-bit Linux: Arch and Omarchy, Ubuntu, Fedora and others. Instead of Windows' leftovers, its System page covers package caches, the journal, Flatpak and ~/.cache, and removed files go to the Trash.",
+      a: "Yes, on Intel, AMD and ARM: Arch and Omarchy, Ubuntu, Fedora and others. Instead of Windows' leftovers, its System page covers package caches, the journal, Flatpak, Snap and ~/.cache, and removed files go to the Trash.",
     },
     {
       q: "Why does Windows say “Windows protected your PC”?",
@@ -368,7 +393,8 @@ function Faq({ release }: { release: Release }) {
       q: "Which download should I get?",
       a: (
         <>
-          On Linux, the tarball ({release.linux.size ?? "about 40 MB"}). On Windows, the main download (
+          On Linux: <Code>yay -S ebb-bin</Code> on Arch, the .deb on Ubuntu or Debian, or the tarball (
+          {release.linux.size ?? "about 40 MB"}) anywhere else. On Windows, the main download (
           {release.full.size ?? "about 72 MB"}) has everything it needs. If you already have the{" "}
           <a href="https://dotnet.microsoft.com/download/dotnet/8.0" className="underline underline-offset-4 hover:text-fg">
             .NET 8 Desktop Runtime
