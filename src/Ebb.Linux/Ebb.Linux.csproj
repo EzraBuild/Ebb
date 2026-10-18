@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- The Linux app. It also runs on Windows, which is handy for working on the UI. -->
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>ebb</AssemblyName>
+    <RootNamespace>Ebb.Linux</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <!-- Avalonia 11 ships SkiaSharp 2.88, which crashes at start with fontconfig 2.17+ (current Arch, Ubuntu 26.04). -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
+    <PackageReference Include="HarfBuzzSharp" Version="8.3.1.3" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ebb.Core\Ebb.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\ebb.png" />
+    <!-- The same Geist files as the Windows app (SIL Open Font License, see OFL.txt) -->
+    <AvaloniaResource Include="..\Ebb.App\Fonts\*.ttf" Link="Assets\Fonts\%(Filename)%(Extension)" />
+    <None Include="..\Ebb.App\Fonts\OFL.txt" Link="OFL.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ebb.Linux.Tests" />
+  </ItemGroup>
+
+</Project>

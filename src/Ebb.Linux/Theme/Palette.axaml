@@ -1,0 +1,71 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Monochrome, light and dark. Every color in the app comes from here.  -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="Ebb.Bg" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="Ebb.Surface" Color="#121212" />
+            <SolidColorBrush x:Key="Ebb.SurfaceHover" Color="#1A1A1A" />
+            <SolidColorBrush x:Key="Ebb.Border" Color="#262626" />
+            <SolidColorBrush x:Key="Ebb.BorderStrong" Color="#404040" />
+            <SolidColorBrush x:Key="Ebb.Text" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="Ebb.TextMuted" Color="#A3A3A3" />
+            <SolidColorBrush x:Key="Ebb.TextFaint" Color="#737373" />
+            <SolidColorBrush x:Key="Ebb.Inverse" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="Ebb.InverseHover" Color="#D4D4D4" />
+            <SolidColorBrush x:Key="Ebb.InverseText" Color="#0A0A0A" />
+
+            <!--  The Fluent text box, made to match  -->
+            <SolidColorBrush x:Key="TextControlBackground" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlBorderBrush" Color="#262626" />
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#404040" />
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="TextControlForeground" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#737373" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#737373" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#737373" />
+            <Color x:Key="TextControlSelectionHighlightColor">#525252</Color>
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="Ebb.Bg" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Ebb.Surface" Color="#FAFAFA" />
+            <SolidColorBrush x:Key="Ebb.SurfaceHover" Color="#F2F2F2" />
+            <SolidColorBrush x:Key="Ebb.Border" Color="#E5E5E5" />
+            <SolidColorBrush x:Key="Ebb.BorderStrong" Color="#C7C7C7" />
+            <SolidColorBrush x:Key="Ebb.Text" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="Ebb.TextMuted" Color="#525252" />
+            <SolidColorBrush x:Key="Ebb.TextFaint" Color="#8A8A8A" />
+            <SolidColorBrush x:Key="Ebb.Inverse" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="Ebb.InverseHover" Color="#333333" />
+            <SolidColorBrush x:Key="Ebb.InverseText" Color="#FFFFFF" />
+
+            <SolidColorBrush x:Key="TextControlBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="TextControlBorderBrush" Color="#E5E5E5" />
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#C7C7C7" />
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlForeground" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#0A0A0A" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#8A8A8A" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#8A8A8A" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#8A8A8A" />
+            <Color x:Key="TextControlSelectionHighlightColor">#C7C7C7</Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <!--  Geist for text, Geist Mono for numbers, paths and labels  -->
+    <FontFamily x:Key="Ebb.Sans">avares://ebb/Assets/Fonts#Geist</FontFamily>
+    <FontFamily x:Key="Ebb.Mono">avares://ebb/Assets/Fonts#Geist Mono</FontFamily>
+
+    <!--  Square corners for anything from the Fluent theme  -->
+    <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="OverlayCornerRadius">0</CornerRadius>
+    <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+</ResourceDictionary>

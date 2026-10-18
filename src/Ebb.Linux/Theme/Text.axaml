@@ -1,0 +1,146 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Text  -->
+    <Style Selector="TextBlock.eyebrow">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.TextFaint}" />
+    </Style>
+    <Style Selector="TextBlock.h1">
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+    </Style>
+    <Style Selector="TextBlock.h2">
+        <Setter Property="FontSize" Value="21" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="LineHeight" Value="19" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.TextMuted}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.meta">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.TextFaint}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="TextBlock.number">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <!--  A finding or step: hover shades it, ticking outlines it  -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource Ebb.Bg}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="0,0,0,-1" />
+    </Style>
+    <Style Selector="Border.card.hover:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Ebb.Surface}" />
+    </Style>
+    <Style Selector="Border.card.selected">
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="ZIndex" Value="1" />
+    </Style>
+
+    <!--  SAFE is filled, CHECK FIRST is outlined, KEEP is dashed: three looks that work without color  -->
+    <Style Selector="Border.badge">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="12,0,0,0" />
+    </Style>
+    <Style Selector="Border.badge TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="Margin" Value="6,1" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+    </Style>
+    <Style Selector="Border.badge.safe">
+        <Setter Property="Background" Value="{DynamicResource Ebb.Inverse}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Inverse}" />
+    </Style>
+    <Style Selector="Border.badge.safe TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.InverseText}" />
+    </Style>
+    <Style Selector="Border.badge.check">
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Text}" />
+    </Style>
+    <Style Selector="Border.badge.keep TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.TextMuted}" />
+    </Style>
+
+    <!--  Small outlined label: ASKS FOR PASSWORD, CAN'T UNDO  -->
+    <Style Selector="Border.tag">
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="6,1" />
+        <Setter Property="Margin" Value="10,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.tag TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+    </Style>
+
+    <!--  Thin moving line while something runs  -->
+    <Style Selector="Border.progress">
+        <Setter Property="Height" Value="2" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource Ebb.Border}" />
+    </Style>
+    <Style Selector="Border.progress Rectangle">
+        <Setter Property="Width" Value="160" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Fill" Value="{DynamicResource Ebb.Text}" />
+        <Style.Animations>
+            <Animation IterationCount="Infinite" Duration="0:0:1.8">
+                <KeyFrame Cue="0%">
+                    <Setter Property="TranslateTransform.X" Value="-160" />
+                </KeyFrame>
+                <KeyFrame Cue="100%">
+                    <Setter Property="TranslateTransform.X" Value="1600" />
+                </KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
+
+    <!--  The command a step runs  -->
+    <Style Selector="Border.command">
+        <Setter Property="Padding" Value="12,9" />
+        <Setter Property="Background" Value="{DynamicResource Ebb.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!--  Text boxes: plain, mono  -->
+    <Style Selector="TextBox.input">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="CaretBrush" Value="{DynamicResource Ebb.Text}" />
+    </Style>
+
+    <!--  Tooltips: square, quiet  -->
+    <Style Selector="ToolTip">
+        <Setter Property="Background" Value="{DynamicResource Ebb.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.BorderStrong}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="MaxWidth" Value="380" />
+    </Style>
+</Styles>

@@ -1,0 +1,20 @@
+<Application
+    x:Class="Ebb.Linux.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Name="Ebb"
+    RequestedThemeVariant="Default">
+    <!--  Default follows the desktop's light or dark setting.  -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://ebb/Theme/Palette.axaml" />
+                <ResourceInclude Source="avares://ebb/Theme/Controls.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://ebb/Theme/Text.axaml" />
+    </Application.Styles>
+</Application>

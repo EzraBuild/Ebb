@@ -1,0 +1,435 @@
+<Window
+    x:Class="Ebb.Linux.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:Ebb.Linux.Views"
+    xmlns:vm="using:Ebb.Linux.ViewModels"
+    Title="Ebb"
+    Width="1180"
+    Height="800"
+    MinWidth="940"
+    MinHeight="620"
+    x:DataType="vm:MainViewModel"
+    Background="{DynamicResource Ebb.Bg}"
+    FontFamily="{DynamicResource Ebb.Sans}"
+    FontFeatures="-liga, -calt"
+    FontSize="13"
+    Foreground="{DynamicResource Ebb.Text}"
+    Icon="/Assets/ebb.png"
+    WindowStartupLocation="CenterScreen">
+
+    <Window.DataTemplates>
+        <!--  A page of findings (Developer, System, Personal)  -->
+        <DataTemplate DataType="vm:FindingsPageViewModel">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="36,30,36,36">
+                    <TextBlock Classes="eyebrow" Text="{Binding Eyebrow}" />
+                    <Grid Margin="0,8,0,0">
+                        <TextBlock Classes="h2" Text="{Binding Title}" />
+                        <TextBlock
+                            Classes="number"
+                            FontSize="21"
+                            Text="{Binding SizeText}" />
+                    </Grid>
+                    <TextBlock
+                        MaxWidth="620"
+                        Margin="0,8,0,22"
+                        HorizontalAlignment="Left"
+                        Classes="body"
+                        Text="{Binding Description}" />
+                    <Border
+                        Padding="16,20"
+                        BorderBrush="{DynamicResource Ebb.Border}"
+                        BorderThickness="1"
+                        IsVisible="{Binding IsEmpty}">
+                        <TextBlock Classes="body" Text="Nothing big here." />
+                    </Border>
+                    <ItemsControl ClipToBounds="False" Focusable="False" ItemsSource="{Binding Findings}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:FindingViewModel">
+                                <Border
+                                    Padding="18,16"
+                                    Classes="card hover"
+                                    Classes.selected="{Binding IsSelected}">
+                                    <Grid ColumnDefinitions="34,*,120">
+                                        <CheckBox
+                                            Margin="0,2,0,0"
+                                            AutomationProperties.Name="{Binding Title}"
+                                            IsChecked="{Binding IsSelected}"
+                                            IsVisible="{Binding CanSelect}" />
+                                        <StackPanel Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Classes="title" Text="{Binding Title}" />
+                                                <Border
+                                                    Classes="badge"
+                                                    Classes.check="{Binding IsCheckFirst}"
+                                                    Classes.keep="{Binding IsKeep}"
+                                                    Classes.safe="{Binding IsSafe}">
+                                                    <Panel>
+                                                        <Rectangle
+                                                            IsVisible="{Binding IsKeep}"
+                                                            Stroke="{DynamicResource Ebb.TextMuted}"
+                                                            StrokeDashArray="3,2"
+                                                            StrokeThickness="1" />
+                                                        <TextBlock Text="{Binding SafetyText}" />
+                                                    </Panel>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock
+                                                MaxWidth="720"
+                                                Margin="0,7,0,0"
+                                                HorizontalAlignment="Left"
+                                                Classes="body"
+                                                Text="{Binding Reason}" />
+                                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                                <TextBlock
+                                                    MaxWidth="420"
+                                                    Classes="meta"
+                                                    Text="{Binding Meta}"
+                                                    ToolTip.Tip="{Binding Finding.Path}" />
+                                                <TextBlock
+                                                    Margin="18,0,0,0"
+                                                    Classes="meta"
+                                                    Foreground="{DynamicResource Ebb.TextMuted}"
+                                                    IsVisible="{Binding HasActionText}"
+                                                    Text="{Binding ActionText}" />
+                                                <Button
+                                                    Margin="18,0,0,0"
+                                                    Command="{Binding OpenCommand}"
+                                                    Content="{Binding OpenLabel, StringFormat='{}{0} →'}"
+                                                    IsVisible="{Binding CanOpen}"
+                                                    Theme="{StaticResource Ebb.Link}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Classes="number"
+                                            Text="{Binding SizeText}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </DataTemplate>
+
+        <!--  Biggest folders: a simple drill-down browser  -->
+        <DataTemplate DataType="vm:FoldersPageViewModel">
+            <DockPanel Margin="36,30,36,0">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Classes="eyebrow" Text="{Binding Eyebrow}" />
+                    <Grid Margin="0,8,0,0">
+                        <TextBlock Classes="h2" Text="{Binding Title}" />
+                        <TextBlock
+                            Classes="number"
+                            FontSize="21"
+                            Text="{Binding SizeText}" />
+                    </Grid>
+                    <TextBlock
+                        MaxWidth="620"
+                        Margin="0,8,0,20"
+                        HorizontalAlignment="Left"
+                        Classes="body"
+                        Text="{Binding Description}" />
+                    <Grid Margin="0,0,0,8" ColumnDefinitions="Auto,*,Auto">
+                        <Button
+                            Padding="12,6"
+                            Command="{Binding UpCommand}"
+                            Content="↑ Up"
+                            Theme="{StaticResource Ebb.Ghost}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="14,0"
+                            VerticalAlignment="Center"
+                            Classes="meta"
+                            Foreground="{DynamicResource Ebb.Text}"
+                            Text="{Binding CurrentPath}" />
+                        <Button
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Command="{Binding OpenFolderCommand}"
+                            Content="Open folder →"
+                            Theme="{StaticResource Ebb.Link}" />
+                    </Grid>
+                </StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <Border Margin="0,0,0,36" BorderBrush="{DynamicResource Ebb.Border}" BorderThickness="0,1,0,0">
+                        <ItemsControl Focusable="False" ItemsSource="{Binding Rows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:FolderRowViewModel">
+                                    <Button Command="{Binding OpenCommand}" Theme="{StaticResource Ebb.Row}">
+                                        <Grid ColumnDefinitions="*,Auto,110">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    Text="{Binding Name}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                                <TextBlock
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    Classes="meta"
+                                                    Text="{Binding Meta}" />
+                                            </StackPanel>
+                                            <Panel
+                                                Grid.Column="1"
+                                                Width="140"
+                                                Height="4"
+                                                Margin="16,0">
+                                                <Rectangle Fill="{DynamicResource Ebb.Border}" />
+                                                <Rectangle
+                                                    Width="{Binding BarWidth}"
+                                                    HorizontalAlignment="Left"
+                                                    Fill="{DynamicResource Ebb.Text}" />
+                                            </Panel>
+                                            <TextBlock
+                                                Grid.Column="2"
+                                                Classes="number"
+                                                FontSize="13"
+                                                Text="{Binding SizeText}" />
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </ScrollViewer>
+            </DockPanel>
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!--  Header: the question, the disk, the usage bar  -->
+        <Border
+            Padding="36,26,36,22"
+            BorderBrush="{DynamicResource Ebb.Border}"
+            BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                <TextBlock Classes="eyebrow" Text="DISK SPACE, EXPLAINED" />
+                <TextBlock
+                    Grid.Row="1"
+                    Margin="0,8,0,0"
+                    Classes="h1"
+                    Text="{Binding Heading}" />
+                <TextBlock
+                    Grid.Row="2"
+                    Margin="0,6,0,0"
+                    Classes="body"
+                    FontFamily="{DynamicResource Ebb.Mono}"
+                    Text="{Binding DriveSummary}" />
+
+                <StackPanel
+                    Grid.Row="0"
+                    Grid.RowSpan="3"
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom"
+                    Orientation="Horizontal">
+                    <ListBox
+                        Margin="1,0,0,0"
+                        VerticalAlignment="Center"
+                        IsEnabled="{Binding IsNotScanning}"
+                        IsVisible="{Binding HasManyDrives}"
+                        ItemContainerTheme="{StaticResource Ebb.Segment}"
+                        ItemsSource="{Binding Drives}"
+                        SelectedItem="{Binding SelectedDrive}"
+                        Theme="{StaticResource Ebb.PlainList}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="vm:DriveViewModel">
+                                <TextBlock Text="{Binding Label}" ToolTip.Tip="{Binding Root}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button
+                        MinWidth="96"
+                        Margin="12,0,0,0"
+                        Command="{Binding ScanCommand}"
+                        Content="Scan"
+                        IsVisible="{Binding IsNotScanning}"
+                        Theme="{StaticResource Ebb.Primary}" />
+                    <Button
+                        MinWidth="96"
+                        Margin="12,0,0,0"
+                        Command="{Binding ScanCancelCommand}"
+                        Content="Stop"
+                        IsVisible="{Binding IsScanning}"
+                        Theme="{StaticResource Ebb.Ghost}" />
+                </StackPanel>
+
+                <views:UsageBar
+                    Grid.Row="3"
+                    Grid.ColumnSpan="2"
+                    Height="10"
+                    Margin="0,22,0,0"
+                    Fill="{DynamicResource Ebb.Text}"
+                    Free="{Binding FreeWeight}"
+                    Safe="{Binding SafeWeight}"
+                    Track="{DynamicResource Ebb.Border}"
+                    Used="{Binding UsedWeight}" />
+
+                <Grid
+                    Grid.Row="4"
+                    Grid.ColumnSpan="2"
+                    Margin="0,10,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle
+                            Width="10"
+                            Height="10"
+                            Fill="{DynamicResource Ebb.Text}" />
+                        <TextBlock
+                            Margin="8,0,20,0"
+                            Classes="meta"
+                            Text="USED" />
+                        <Border
+                            Width="10"
+                            Height="10"
+                            BorderBrush="{DynamicResource Ebb.Text}"
+                            BorderThickness="1">
+                            <views:UsageBar Fill="{DynamicResource Ebb.Text}" Safe="1" />
+                        </Border>
+                        <TextBlock
+                            Margin="8,0,20,0"
+                            Classes="meta"
+                            Text="SAFE TO REMOVE" />
+                        <Rectangle
+                            Width="10"
+                            Height="10"
+                            Fill="{DynamicResource Ebb.Border}" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            Classes="meta"
+                            Text="FREE" />
+                    </StackPanel>
+                    <TextBlock
+                        HorizontalAlignment="Right"
+                        Classes="meta"
+                        Foreground="{DynamicResource Ebb.Text}"
+                        Text="{Binding SafeSummary}" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!--  Body: pages on the left, the selected page on the right  -->
+        <Grid Grid.Row="1" ColumnDefinitions="250,*">
+            <Border BorderBrush="{DynamicResource Ebb.Border}" BorderThickness="0,0,1,0">
+                <DockPanel>
+                    <StackPanel Margin="22,18" DockPanel.Dock="Bottom">
+                        <Button
+                            HorizontalAlignment="Left"
+                            Command="{Binding OpenLogCommand}"
+                            Content="Cleanup log →"
+                            Theme="{StaticResource Ebb.Link}" />
+                    </StackPanel>
+                    <ListBox
+                        Margin="0,18,0,0"
+                        IsEnabled="{Binding HasResults}"
+                        ItemContainerTheme="{StaticResource Ebb.NavItem}"
+                        ItemsSource="{Binding Pages}"
+                        SelectedItem="{Binding SelectedPage}"
+                        Theme="{StaticResource Ebb.PlainList}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="vm:PageViewModel">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock FontSize="14" Text="{Binding Title}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{DynamicResource Ebb.Mono}"
+                                        FontSize="12"
+                                        Text="{Binding SizeText}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!--  Before the first scan  -->
+            <StackPanel
+                Grid.Column="1"
+                MaxWidth="520"
+                Margin="36,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                IsVisible="{Binding IsEmpty}">
+                <TextBlock Classes="eyebrow" Text="READY" />
+                <TextBlock
+                    Margin="0,8,0,0"
+                    Classes="h2"
+                    Text="Scan to see what's using space" />
+                <TextBlock
+                    Margin="0,8,0,20"
+                    Classes="body"
+                    Text="Scanning only reads your disk. Nothing is removed until you've seen exactly what will go and said OK." />
+                <Button
+                    HorizontalAlignment="Left"
+                    Command="{Binding ScanCommand}"
+                    Content="Scan now"
+                    Theme="{StaticResource Ebb.Primary}" />
+            </StackPanel>
+
+            <!--  While scanning  -->
+            <StackPanel
+                Grid.Column="1"
+                MaxWidth="560"
+                Margin="36,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                IsVisible="{Binding IsScanning}">
+                <TextBlock Classes="eyebrow" Text="SCANNING" />
+                <TextBlock
+                    Margin="0,8,0,0"
+                    FontFamily="{DynamicResource Ebb.Mono}"
+                    FontSize="18"
+                    Text="{Binding ProgressText}" />
+                <Border Margin="0,18,0,0" Classes="progress">
+                    <Rectangle />
+                </Border>
+                <TextBlock
+                    Margin="0,14,0,0"
+                    Classes="body"
+                    Text="A full disk takes a minute or two. Ebb only reads; it doesn't change anything." />
+            </StackPanel>
+
+            <!--  Results  -->
+            <ContentControl
+                Grid.Column="1"
+                Content="{Binding SelectedPage}"
+                Focusable="False"
+                IsVisible="{Binding HasResults}" />
+        </Grid>
+
+        <!--  Footer: selection and the one button that matters  -->
+        <Border
+            Grid.Row="2"
+            Padding="36,14"
+            BorderBrush="{DynamicResource Ebb.Border}"
+            BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectionText}" />
+                    <TextBlock
+                        Margin="0,4,0,0"
+                        Classes="meta"
+                        Text="{Binding Notice}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button
+                        Command="{Binding SelectSafeCommand}"
+                        Content="Tick everything safe"
+                        Theme="{StaticResource Ebb.Ghost}" />
+                    <Button
+                        Margin="10,0,0,0"
+                        Command="{Binding ReviewCleanupCommand}"
+                        Content="Review cleanup →"
+                        Theme="{StaticResource Ebb.Primary}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

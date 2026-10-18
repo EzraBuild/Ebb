@@ -1,0 +1,269 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Focus: a thin dashed outline  -->
+    <FocusAdornerTemplate x:Key="Ebb.Focus">
+        <Rectangle Margin="-3" Stroke="{DynamicResource Ebb.Text}" StrokeDashArray="2,2" StrokeThickness="1" />
+    </FocusAdornerTemplate>
+
+    <!--  Buttons  -->
+    <ControlTheme x:Key="Ebb.Button" TargetType="Button">
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Sans}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Padding" Value="16,9" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FocusAdorner" Value="{StaticResource Ebb.Focus}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter
+                    Name="PART_ContentPresenter"
+                    Padding="{TemplateBinding Padding}"
+                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    Foreground="{TemplateBinding Foreground}"
+                    RecognizesAccessKey="True" />
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.35" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="Ebb.Primary" BasedOn="{StaticResource Ebb.Button}" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource Ebb.Inverse}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Inverse}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.InverseText}" />
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Ebb.InverseHover}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Ebb.InverseHover}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="Ebb.Ghost" BasedOn="{StaticResource Ebb.Button}" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.BorderStrong}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Ebb.SurfaceHover}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Text}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="Ebb.Link" BasedOn="{StaticResource Ebb.Button}" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Style Selector="^:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource Ebb.TextMuted}" />
+        </Style>
+    </ControlTheme>
+
+    <!--  A full-width clickable row with a bottom rule  -->
+    <ControlTheme x:Key="Ebb.Row" BasedOn="{StaticResource Ebb.Button}" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Border}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="12,11" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Ebb.Surface}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Cursor" Value="Arrow" />
+        </Style>
+    </ControlTheme>
+
+    <!--  Check box: a square that fills in. The default for every CheckBox.  -->
+    <ControlTheme x:Key="{x:Type CheckBox}" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusAdorner" Value="{StaticResource Ebb.Focus}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="{TemplateBinding Background}" ColumnDefinitions="Auto,*">
+                    <Border
+                        Name="Box"
+                        Width="16"
+                        Height="16"
+                        Margin="0,1,0,0"
+                        VerticalAlignment="Top"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource Ebb.BorderStrong}"
+                        BorderThickness="1">
+                        <Panel>
+                            <Path
+                                Name="Mark"
+                                Data="M 2.5,7 L 5.5,10 L 11.5,3.5"
+                                IsVisible="False"
+                                Stroke="{DynamicResource Ebb.InverseText}"
+                                StrokeThickness="1.6" />
+                            <!--  Some ticked: a dash in the box  -->
+                            <Rectangle
+                                Name="Partial"
+                                Width="8"
+                                Height="2"
+                                Fill="{DynamicResource Ebb.Text}"
+                                IsVisible="False" />
+                        </Panel>
+                    </Border>
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Top"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        IsVisible="{TemplateBinding Content, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#Box">
+            <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Text}" />
+        </Style>
+        <Style Selector="^:checked /template/ Border#Box">
+            <Setter Property="Background" Value="{DynamicResource Ebb.Inverse}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Inverse}" />
+        </Style>
+        <Style Selector="^:checked /template/ Path#Mark">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+        <Style Selector="^:indeterminate /template/ Rectangle#Partial">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.25" />
+            <Setter Property="Cursor" Value="Arrow" />
+        </Style>
+    </ControlTheme>
+
+    <!--  Lists without any chrome  -->
+    <ControlTheme x:Key="Ebb.PlainList" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <!--  Left navigation item: a bar on the left when selected  -->
+    <ControlTheme x:Key="Ebb.NavItem" TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.TextMuted}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusAdorner" Value="{StaticResource Ebb.Focus}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel Background="{TemplateBinding Background}">
+                    <Rectangle
+                        Name="Bar"
+                        Width="2"
+                        HorizontalAlignment="Left"
+                        Fill="{DynamicResource Ebb.Text}"
+                        IsVisible="False" />
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        Margin="22,11,20,11"
+                        HorizontalContentAlignment="Stretch"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        Foreground="{TemplateBinding Foreground}" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Ebb.SurfaceHover}" />
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Background" Value="{DynamicResource Ebb.Surface}" />
+            <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        </Style>
+        <Style Selector="^:selected /template/ Rectangle#Bar">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+    </ControlTheme>
+
+    <!--  Segmented control (disk picker)  -->
+    <ControlTheme x:Key="Ebb.Segment" TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource Ebb.Text}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ebb.BorderStrong}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Ebb.Mono}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="-1,0,0,0" />
+        <Setter Property="FocusAdorner" Value="{StaticResource Ebb.Focus}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter
+                    Name="PART_ContentPresenter"
+                    Padding="14,8"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1"
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    Foreground="{TemplateBinding Foreground}" />
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Ebb.SurfaceHover}" />
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Background" Value="{DynamicResource Ebb.Inverse}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Ebb.Inverse}" />
+            <Setter Property="Foreground" Value="{DynamicResource Ebb.InverseText}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.4" />
+        </Style>
+    </ControlTheme>
+
+    <!--  Long lists in the review window (virtualized)  -->
+    <ControlTheme x:Key="Ebb.ItemRow" TargetType="ListBoxItem">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Padding="0,5" BorderBrush="{DynamicResource Ebb.Border}" BorderThickness="0,0,0,1">
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        HorizontalContentAlignment="Stretch"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="Ebb.ItemList" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ItemContainerTheme" Value="{StaticResource Ebb.ItemRow}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ScrollViewer
+                    Name="PART_ScrollViewer"
+                    Focusable="False"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+                    <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+                </ScrollViewer>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>
