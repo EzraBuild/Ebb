@@ -145,8 +145,8 @@ public sealed class CleanupExecutor(
             .Select(i => Path.GetDirectoryName(i.Path)!)
             .Distinct(PathUtil.Comparer)
             .ToList();
-        if (folders.Count == 0 && tool.AsRoot && step.Finding.Path is { } cache)
-            folders.Add(cache); // system caches have no items; measure the cache folder itself
+        if (folders.Count == 0 && step.Finding.Path is { } cache)
+            folders.Add(cache); // nothing listed (system caches, Flatpak): measure the folder itself
         var before = folders.Sum(f => DirectorySizer.Measure(f, cancellationToken));
 
         var result = step.ElevatorPath is { } elevator
@@ -163,9 +163,9 @@ public sealed class CleanupExecutor(
         if (!result.Succeeded)
             return new StepResult(step, StepOutcome.Failed, 0, 0, $"{tool.Tool} reported a problem: {output}");
 
-        var message = tool.Tool == "docker"
+        var message = tool.Tool == "docker" && OperatingSystem.IsWindows()
             ? "Docker cleaned up inside its disk. Shrink the Docker disk to get that space back on this drive."
-            : $"{tool.Tool} finished and freed {ByteSize.Format(freed)}.";
+            : freed > 0 ? $"{tool.Tool} finished and freed {ByteSize.Format(freed)}." : $"{tool.Tool} finished.";
         return new StepResult(step, StepOutcome.Done, freed, 0, message);
     }
 
@@ -180,11 +180,12 @@ public sealed class CleanupExecutor(
 
     private StepResult EmptyBin(PlanStep step)
     {
-        var drive = ((EmptyRecycleBin)step.Finding.Action!).Drive;
-        recycleBin.Empty(drive);
+        var bin = (EmptyRecycleBin)step.Finding.Action!;
+        recycleBin.Empty(bin.Drive);
         var freed = step.Finding.Bytes ?? 0;
-        Log(step, "empty-recycle-bin", drive, freed, true, null);
-        return new StepResult(step, StepOutcome.Done, freed, 0, $"Emptied the Recycle Bin and freed {ByteSize.Format(freed)}.");
+        Log(step, bin.IsTrash ? "empty-trash" : "empty-recycle-bin", bin.Drive, freed, true, null);
+        var name = bin.IsTrash ? "Trash" : "Recycle Bin";
+        return new StepResult(step, StepOutcome.Done, freed, 0, $"Emptied the {name} and freed {ByteSize.Format(freed)}.");
     }
 
     private async Task<StepResult> CompactAsync(PlanStep step, CancellationToken cancellationToken)

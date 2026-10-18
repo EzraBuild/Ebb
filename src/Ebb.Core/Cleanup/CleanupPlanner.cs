@@ -43,7 +43,9 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
         {
             Finding = finding,
             Kind = StepKind.EmptyRecycleBin,
-            Description = $"Empties the Recycle Bin on {bin.Drive}. Those files can't be restored after this.",
+            Description = bin.IsTrash
+                ? "Empties the Trash. Those files can't be restored after this."
+                : $"Empties the Recycle Bin on {bin.Drive}. Those files can't be restored after this.",
         }, null),
         CompactDisk disk => (new PlanStep
         {

@@ -21,7 +21,8 @@ public sealed record RunTool(string Tool, IReadOnlyList<string> Arguments, bool 
 /// <summary>A Windows command that needs admin, run by Ebb.Helper.</summary>
 public sealed record RunElevated(HelperOperation Operation) : FindingAction;
 
-public sealed record EmptyRecycleBin(string Drive) : FindingAction;
+/// <param name="IsTrash">Linux: it's the Trash in your home folder, not a Windows Recycle Bin.</param>
+public sealed record EmptyRecycleBin(string Drive, bool IsTrash = false) : FindingAction;
 
 public enum DiskOwner
 {

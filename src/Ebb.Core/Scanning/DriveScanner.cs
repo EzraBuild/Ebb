@@ -37,7 +37,7 @@ public sealed class DriveScanner
         progress?.Report(run.Progress);
 
         var largeFiles = run.LargeFiles.OrderByDescending(f => f.Size).ToList();
-        return new ScanResult(rootNode, largeFiles, run.Files, run.Folders, run.Inaccessible, stopwatch.Elapsed);
+        return new ScanResult(rootNode, largeFiles, run.Files, run.Folders, run.Inaccessible, stopwatch.Elapsed, _options.SkipFolder);
     }
 
     /// <summary>Adds child sizes into parents, then drops tiny folders and sorts the rest biggest first.</summary>

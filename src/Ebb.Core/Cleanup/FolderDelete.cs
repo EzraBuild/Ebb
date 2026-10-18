@@ -21,7 +21,10 @@ internal static class FolderDelete
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            throw new IOException("It's in use, maybe by a dev server or editor. Nothing was deleted.", ex);
+            // Linux doesn't lock open files, so there a failed rename means no permission.
+            throw new IOException(OperatingSystem.IsWindows()
+                ? "It's in use, maybe by a dev server or editor. Nothing was deleted."
+                : "Ebb isn't allowed to change it (it may belong to root). Nothing was deleted.", ex);
         }
 
         DeleteFiles(doomed);

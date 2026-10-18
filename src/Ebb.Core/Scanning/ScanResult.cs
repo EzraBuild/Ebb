@@ -2,9 +2,12 @@ namespace Ebb.Core.Scanning;
 
 public sealed class ScanResult
 {
+    private readonly Func<string, bool>? _skipped;
+
     internal ScanResult(DirNode root, IReadOnlyList<LargeFile> largeFiles, long fileCount, long folderCount,
-        long inaccessibleFolders, TimeSpan elapsed)
+        long inaccessibleFolders, TimeSpan elapsed, Func<string, bool>? skipped = null)
     {
+        _skipped = skipped;
         Root = root;
         LargeFiles = largeFiles;
         FileCount = fileCount;
@@ -29,7 +32,23 @@ public sealed class ScanResult
 
     public TimeSpan Elapsed { get; }
 
-    public bool Covers(string path) => PathUtil.IsSameOrUnder(path, RootPath);
+    /// <summary>True for paths on the scanned drive, and not in a folder the scan skipped (like another disk).</summary>
+    public bool Covers(string path)
+    {
+        if (!PathUtil.IsSameOrUnder(path, RootPath))
+            return false;
+        if (_skipped is null)
+            return true;
+
+        var folder = RootPath;
+        foreach (var segment in PathUtil.RelativeSegments(path, RootPath))
+        {
+            folder = Path.Join(folder, segment);
+            if (_skipped(folder))
+                return false;
+        }
+        return true;
+    }
 
     /// <summary>The node for a folder, or null if it's outside the scan or was too small to keep.</summary>
     public DirNode? Find(string path)
