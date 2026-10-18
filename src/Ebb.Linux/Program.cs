@@ -23,5 +23,6 @@ internal static class Program
     public static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .With(new X11PlatformOptions { WmClass = "ebb" }) // matches ebb.desktop, so docks show the right icon
             .LogToTrace();
 }

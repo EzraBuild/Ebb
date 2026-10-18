@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Ebb
+GenericName=Disk space cleaner
+Comment=Why is my disk full? See what's using space and clean it up safely.
+Exec=ebb
+Icon=ebb
+Terminal=false
+Categories=Utility;System;
+Keywords=disk;space;storage;cleanup;cache;
+StartupWMClass=ebb
