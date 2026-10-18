@@ -7,6 +7,8 @@
     <AssemblyName>ebb</AssemblyName>
     <RootNamespace>Ebb.Linux</RootNamespace>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- No ICU needed, so it runs on minimal systems too. Ebb has no text that needs culture rules. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
