@@ -55,12 +55,14 @@ public sealed class CleanupExecutor(
                 continue;
             }
 
-            progress?.Report(new CleanupProgress(i + 1, plan.Steps.Count, step.Title));
+            var number = i + 1;
+            void Report(string message) => progress?.Report(new CleanupProgress(number, plan.Steps.Count, message));
+            Report(step.Title);
             try
             {
                 results.Add(step.Kind switch
                 {
-                    StepKind.RemoveItems => await RemoveAsync(step, step.RemovalFor(plan.RemovalMode), cancellationToken),
+                    StepKind.RemoveItems => await RemoveAsync(step, step.RemovalFor(plan.RemovalMode), Report, cancellationToken),
                     StepKind.RunTool => await RunToolAsync(step, cancellationToken),
                     StepKind.RunElevated => await RunElevatedAsync(step, cancellationToken),
                     StepKind.EmptyRecycleBin => EmptyBin(step),
@@ -81,7 +83,8 @@ public sealed class CleanupExecutor(
         return new CleanupReport(results);
     }
 
-    private async Task<StepResult> RemoveAsync(PlanStep step, RemovalMode mode, CancellationToken cancellationToken)
+    private async Task<StepResult> RemoveAsync(PlanStep step, RemovalMode mode, Action<string> report,
+        CancellationToken cancellationToken)
     {
         var selected = step.SelectedItems.ToList();
         if (selected.Count == 0)
@@ -91,8 +94,10 @@ public sealed class CleanupExecutor(
         long bytes = 0;
         var removed = 0;
         var problems = new List<string>();
+        var position = 0;
         foreach (var item in selected)
         {
+            position++;
             if (cancellationToken.IsCancellationRequested)
                 break;
             if (!File.Exists(item.Path) && !Directory.Exists(item.Path))
@@ -101,10 +106,11 @@ public sealed class CleanupExecutor(
             if (guard.Check(item.Path) is { } blocked)
             {
                 Log(step, "refuse", item.Path, 0, false, blocked);
-                problems.Add($"{Path.GetFileName(item.Path)}: {blocked}");
+                problems.Add($"{Tail(item.Path)}: {blocked}");
                 continue;
             }
 
+            report($"{step.Title} · {position:N0} of {selected.Count:N0} · {Tail(item.Path)}");
             try
             {
                 await Task.Run(() => remover.Remove(item.Path, mode), CancellationToken.None);
@@ -115,7 +121,7 @@ public sealed class CleanupExecutor(
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or RemovalDeclinedException)
             {
                 Log(step, action, item.Path, 0, false, ex.Message);
-                problems.Add($"{Path.GetFileName(item.Path)}: {ex.Message}");
+                problems.Add($"{Tail(item.Path)}: {ex.Message}");
             }
         }
 
@@ -186,6 +192,10 @@ public sealed class CleanupExecutor(
         log.Write(new LogEntry(DateTimeOffset.Now, step.Finding.Id, action, target, bytes, succeeded, message));
 
     private static string Count(int n) => n == 1 ? "1 item" : $"{n:N0} items";
+
+    /// <summary>The last two parts of a path, e.g. "my-app\node_modules".</summary>
+    private static string Tail(string path) =>
+        Path.Combine(Path.GetFileName(Path.GetDirectoryName(path)) ?? "", Path.GetFileName(path));
 
     private static string FirstLines(string text)
     {

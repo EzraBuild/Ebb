@@ -85,6 +85,20 @@ public class CleanupExecutorTests : IDisposable
     }
 
     [Fact]
+    public async Task Shows_which_item_it_is_removing()
+    {
+        var first = _layout.Dir(@"src\one\node_modules");
+        var second = _layout.Dir(@"src\two\node_modules");
+        var plan = Plan(Finding("nm", new RemoveItems(), Item(first), Item(second)));
+        var progress = new ListProgress();
+
+        await Executor(new RecordingRemover()).ExecuteAsync(plan, progress);
+
+        Assert.Contains(progress.Messages, m => m.EndsWith(@"1 of 2 · one\node_modules"));
+        Assert.Contains(progress.Messages, m => m.EndsWith(@"2 of 2 · two\node_modules"));
+    }
+
+    [Fact]
     public async Task Checks_the_guard_again_right_before_removing()
     {
         var system = _layout.File(@"Windows\System32\kernel.dll", 10);
@@ -188,4 +202,12 @@ public class CleanupExecutorTests : IDisposable
         Assert.True(File.Exists(file));
         Assert.Equal(StepOutcome.Skipped, report.Results[0].Outcome);
     }
+}
+
+/// <summary>Collects progress right away (Progress&lt;T&gt; would post it later).</summary>
+internal sealed class ListProgress : IProgress<CleanupProgress>
+{
+    public List<string> Messages { get; } = [];
+
+    public void Report(CleanupProgress value) => Messages.Add(value.Message);
 }
