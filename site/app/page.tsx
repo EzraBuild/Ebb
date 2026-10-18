@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ArrowIcon, GitHubIcon, Logo } from "@/components/icons";
+import { PixelRain } from "@/components/pixel-rain";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, Code, DownloadButton, SecondaryButton, Section, SectionHead, Shot, type Verdict } from "@/components/ui";
 import { getRelease, repoUrl, type Release } from "@/lib/release";
@@ -56,6 +57,7 @@ function Header({ release }: { release: Release }) {
 function Hero({ release }: { release: Release }) {
   return (
     <section className="relative overflow-hidden border-b border-line">
+      <PixelRain className="absolute inset-x-0 top-0 h-[760px] w-full [mask-image:linear-gradient(to_bottom,black_45%,transparent)]" />
       <div className="relative px-6 pt-20 pb-16 md:px-12 md:pt-28 md:pb-20">
         <p className="inline-flex items-center gap-2 border border-line bg-bg px-2.5 py-1 font-mono text-xs text-muted">
           <span className="size-1.5 bg-fg" />
@@ -361,7 +363,8 @@ function Faq({ release }: { release: Release }) {
 
 function Cta({ release }: { release: Release }) {
   return (
-    <Section className="overflow-hidden border-b-0">
+    <Section className="border-b-0">
+      <PixelRain density={0.7} className="absolute inset-0 size-full [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]" />
       <div className="relative px-6 py-24 text-center md:py-32">
         <h2 className="mx-auto max-w-2xl text-4xl font-medium tracking-tighter text-balance md:text-6xl">
           See what&apos;s filling your drive.
