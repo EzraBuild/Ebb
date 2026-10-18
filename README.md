@@ -74,6 +74,10 @@ src/Ebb.App      WPF + WPF-UI app: monochrome, square corners, Geist
 tests/Ebb.Tests  xUnit tests (sandboxed)
 ```
 
+## License
+
+MIT, see [LICENSE](LICENSE).
+
 ## Credits
 
 [Geist and Geist Mono](https://github.com/vercel/geist-font) fonts are by Vercel, licensed under the SIL Open Font License (see `src/Ebb.App/Fonts/OFL.txt`). Built with [WPF-UI](https://github.com/lepoco/wpfui) and the [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet).
