@@ -20,7 +20,7 @@ export default async function Home() {
         <Safety />
         <Disks />
         <Linux release={release} aur={aur} />
-        <Faq release={release} />
+        <Faq release={release} aur={aur} />
         <Cta release={release} />
       </main>
       <Footer />
@@ -378,7 +378,7 @@ function Linux({ release, aur }: { release: Release; aur: boolean }) {
   );
 }
 
-function Faq({ release }: { release: Release }) {
+function Faq({ release, aur }: { release: Release; aur: boolean }) {
   const faqs: { q: string; a: ReactNode }[] = [
     { q: "Is Ebb free?", a: "Yes. It's open source under the MIT license. No ads, no account, no upsell." },
     {
@@ -393,7 +393,7 @@ function Faq({ release }: { release: Release }) {
       q: "Which download should I get?",
       a: (
         <>
-          On Linux: <Code>yay -S ebb-bin</Code> on Arch, the .deb on Ubuntu or Debian, or the tarball (
+          On Linux: {aur && <><Code>yay -S ebb-bin</Code> on Arch, </>}the .deb on Ubuntu or Debian, or the tarball (
           {release.linux.size ?? "about 40 MB"}) anywhere else. On Windows, the main download (
           {release.full.size ?? "about 72 MB"}) has everything it needs. If you already have the{" "}
           <a href="https://dotnet.microsoft.com/download/dotnet/8.0" className="underline underline-offset-4 hover:text-fg">
