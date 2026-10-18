@@ -27,7 +27,7 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
     private (PlanStep? Step, string? Skipped) Build(Finding finding) => finding.Action switch
     {
         RemoveItems { RebuiltBy: { } rebuiltBy } => RemoveStep(finding,
-            $"Deletes the ticked items below for good. {rebuiltBy} brings them back. They skip the Recycle Bin: " +
+            $"Deletes the ticked items below for good. {rebuiltBy} brings them back. They skip the {Bin.Name}: " +
             "with this many files it's slow, and it frees nothing until it's emptied.", skipsRecycleBin: true),
         RemoveItems => RemoveStep(finding, "Removes the ticked items below."),
         RunTool tool => ToolStep(finding, tool),
@@ -74,7 +74,7 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
                 Finding = finding,
                 Kind = StepKind.RunTool,
                 Description = $"Runs {tool.Tool}'s own cleanup command. {tool.Tool} deletes the files itself, so " +
-                              "they don't go to the Recycle Bin.",
+                              $"they don't go to the {Bin.Name}.",
                 CommandLine = tool.CommandLine,
                 ToolPath = toolPath,
             }, null);
@@ -119,7 +119,7 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
             Description = description,
             Items = items,
             SkipsRecycleBin = skipsRecycleBin,
-            Warnings = !skipsRecycleBin && items.Any(i => i.Bytes >= MayNotFitInBin)
+            Warnings = OperatingSystem.IsWindows() && !skipsRecycleBin && items.Any(i => i.Bytes >= MayNotFitInBin)
                 ? ["Some of these may be too big for the Recycle Bin. Windows will ask before deleting those for good."]
                 : [],
         }, null);

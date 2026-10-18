@@ -91,3 +91,9 @@ public sealed class CleanupPlan(IReadOnlyList<PlanStep> steps, IReadOnlyList<Ski
 
     public bool NeedsAdmin => Steps.Any(s => s.NeedsAdmin);
 }
+
+/// <summary>What deleted files go to on this system.</summary>
+internal static class Bin
+{
+    public static string Name => OperatingSystem.IsWindows() ? "Recycle Bin" : "Trash";
+}

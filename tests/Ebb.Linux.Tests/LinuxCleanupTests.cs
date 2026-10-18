@@ -155,6 +155,22 @@ public class LinuxCleanupTests : IDisposable
     }
 
     [Fact]
+    public void Plans_on_linux_say_trash_not_recycle_bin()
+    {
+        var finding = new Finding
+        {
+            Id = "linux.cache.apps", Category = Category.Windows, Title = "App caches", Reason = "", Safety = Safety.Safe,
+            Bytes = MB, Action = new RemoveItems("The app that made each one"),
+            Items = [new FindingItem(_layout.Dir("home/me/.cache/mozilla"), MB, DateTime.UtcNow)],
+        };
+
+        var step = Assert.Single(new CleanupPlanner(Guard(), new FakeTools()).Plan([finding]).Steps);
+
+        Assert.Contains(OperatingSystem.IsWindows() ? "skip the Recycle Bin" : "skip the Trash", step.Description);
+        Assert.Empty(step.Warnings);
+    }
+
+    [Fact]
     public async Task Emptying_the_trash_says_trash()
     {
         var finding = new Finding

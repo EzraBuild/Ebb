@@ -127,7 +127,7 @@ public sealed class CleanupExecutor(
 
         var size = ByteSize.Format(bytes);
         var message = mode == RemovalMode.RecycleBin
-            ? $"Moved {Count(removed)} ({size}) to the Recycle Bin."
+            ? $"Moved {Count(removed)} ({size}) to the {Bin.Name}."
             : $"Deleted {Count(removed)} ({size}).";
         if (problems.Count > 0)
             message += $" {Count(problems.Count)} couldn't be removed, e.g. {problems[0]}";
