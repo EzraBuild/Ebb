@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test -c Release
+
+      - name: Build the downloads and publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          $common = '-c', 'Release', '-r', 'win-x64', "-p:Version=$version", '-p:DebugType=none'
+          dotnet publish src/Ebb.App @common --self-contained -o out/full/Ebb
+          dotnet publish src/Ebb.App @common --no-self-contained -o out/small/Ebb
+          $full = "Ebb-$version-win-x64.zip"
+          $small = "Ebb-$version-win-x64-needs-dotnet8.zip"
+          Compress-Archive out/full/Ebb $full
+          Compress-Archive out/small/Ebb $small
+          gh release create $env:TAG $full $small --title "Ebb $env:TAG" --notes-file .github/release-notes.md

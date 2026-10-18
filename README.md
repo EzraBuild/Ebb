@@ -4,6 +4,15 @@
 
 Most disk tools show *where* the space went. Ebb also tells you *what it is* and *whether it's safe to remove*, especially for the developer files other tools don't recognise: WSL and Docker disks, `node_modules`, package caches and old SDKs.
 
+## Download
+
+Get the latest zip from [Releases](https://github.com/EzraBuild/Ebb/releases), unzip it and run `Ebb.exe`. Windows 10/11, 64-bit.
+
+- `Ebb-…-win-x64.zip` (about 70 MB) needs nothing installed.
+- `Ebb-…-win-x64-needs-dotnet8.zip` (about 3 MB) needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0).
+
+Ebb isn't code-signed yet, so Windows may say **Windows protected your PC** the first time. Click **More info**, then **Run anyway**.
+
 ## What it finds
 
 | Developer | Windows | Personal |
@@ -61,7 +70,15 @@ dotnet publish src/Ebb.App -c Release -o publish
 .\publish\Ebb.exe
 ```
 
+Or one that needs nothing installed (about 170 MB):
+
+```powershell
+dotnet publish src/Ebb.App -c Release -r win-x64 --self-contained -o publish
+```
+
 `Ebb.Helper.exe` must stay next to `Ebb.exe`.
+
+To release a version, push a tag like `v0.1.0`. GitHub Actions runs the tests, builds both zips and attaches them to a new release.
 
 The tests only use fake folders in `%TEMP%\EbbTests` and fake tools, and never touch your real files. One opt-in test moves a tiny temp file to your real Recycle Bin. Run it with `$env:EBB_RECYCLE_TEST = "1"; dotnet test`.
 
