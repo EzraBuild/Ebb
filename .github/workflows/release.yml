@@ -33,8 +33,18 @@ jobs:
           name: windows
           path: dist/
 
+  # Each Linux build is made and started on its own kind of machine, so the ARM one really runs on ARM.
   linux:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            deb: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            deb: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
@@ -42,20 +52,36 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet test tests/Ebb.Linux.Tests -c Release
 
-      - name: Build the Linux download
+      - name: Build the tarball and .deb
         env:
           TAG: ${{ github.ref_name }}
         run: |
           version="${TAG#v}"
-          name="Ebb-$version-linux-x64"
-          dotnet publish src/Ebb.Linux -c Release -r linux-x64 --self-contained -p:Version="$version" -p:DebugType=none -o "out/$name/app"
-          cp packaging/linux/install.sh packaging/linux/ebb.desktop packaging/linux/ebb.svg "out/$name/"
+          name="Ebb-$version-linux-${{ matrix.arch }}"
+          dotnet publish src/Ebb.Linux -c Release -r "linux-${{ matrix.arch }}" --self-contained -p:Version="$version" -p:DebugType=none -o "out/$name/app"
+          cp packaging/linux/install.sh packaging/linux/ebb.desktop packaging/linux/ebb.svg LICENSE "out/$name/"
           chmod +x "out/$name/install.sh" "out/$name/app/ebb"
           mkdir dist
           tar -czf "dist/$name.tar.gz" -C out "$name"
+          sh packaging/linux/build-deb.sh "out/$name/app" "$version" "${{ matrix.deb }}" "dist/ebb_${version}_${{ matrix.deb }}.deb"
+          ls -l dist
+
+      - name: Start it on a fresh account (it must still be running after 15 s)
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          sudo apt-get install -y -qq xvfb > /dev/null
+          home=$(mktemp -d)
+          set +e
+          HOME="$home" timeout 15 xvfb-run -a "out/Ebb-${TAG#v}-linux-${{ matrix.arch }}/app/ebb"
+          code=$?
+          set -e
+          cat "$home/.local/share/Ebb/errors.log" 2> /dev/null || true
+          [ "$code" -eq 124 ]
+
       - uses: actions/upload-artifact@v4
         with:
-          name: linux
+          name: linux-${{ matrix.arch }}
           path: dist/
 
   release:
@@ -72,3 +98,44 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: gh release create "$TAG" dist/* --title "Ebb $TAG" --notes-file .github/release-notes.md
+
+  aur:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: linux-*
+          path: dist
+          merge-multiple: true
+      - name: Update ebb-bin on the AUR
+        env:
+          AUR_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -z "$AUR_KEY" ]; then
+            echo "No AUR_SSH_PRIVATE_KEY secret yet, so the AUR isn't updated."
+            exit 0
+          fi
+          version="${TAG#v}"
+
+          # Only talk to the real AUR: check its host key against the one the Arch wiki publishes.
+          mkdir -p ~/.ssh
+          ssh-keyscan -t ed25519 aur.archlinux.org > ~/.ssh/known_hosts 2> /dev/null
+          ssh-keygen -lf ~/.ssh/known_hosts | grep -q "SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4"
+          printf '%s\n' "$AUR_KEY" > ~/.ssh/aur && chmod 600 ~/.ssh/aur
+          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes"
+
+          git clone ssh://aur@aur.archlinux.org/ebb-bin.git aur
+          sh packaging/aur/fill.sh "$version" "dist/Ebb-$version-linux-x64.tar.gz" "dist/Ebb-$version-linux-arm64.tar.gz" aur/PKGBUILD
+          # .SRCINFO comes from makepkg itself, in an Arch container.
+          docker run --rm -v "$PWD/aur:/pkg" archlinux:latest bash -c \
+            'useradd -m builder && cd /pkg && su builder -c "makepkg --printsrcinfo" > .SRCINFO'
+
+          cd aur
+          git config user.name "EzraBuild"
+          git config user.email "EzraBuild@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "Update to $version"
+          git push origin HEAD:master

@@ -18,10 +18,29 @@ jobs:
       - run: dotnet test -c Release
 
   linux:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
       - run: dotnet test tests/Ebb.Linux.Tests -c Release
+
+      - name: Start the app on a fresh account (it must still be running after 15 s)
+        run: |
+          dotnet publish src/Ebb.Linux -c Release -r "linux-${{ matrix.arch }}" --self-contained -o out/app
+          sudo apt-get install -y -qq xvfb > /dev/null
+          home=$(mktemp -d)
+          set +e
+          HOME="$home" timeout 15 xvfb-run -a out/app/ebb
+          code=$?
+          set -e
+          cat "$home/.local/share/Ebb/errors.log" 2> /dev/null || true
+          [ "$code" -eq 124 ]
