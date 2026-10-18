@@ -1,0 +1,33 @@
+# Maintainer: EzraBuild <EzraBuild@users.noreply.github.com>
+# The release job fills in the version and checksums and pushes this to the AUR as ebb-bin.
+pkgname=ebb-bin
+pkgver=@VERSION@
+pkgrel=1
+pkgdesc="See what's filling your disk and clean it up safely"
+arch=('x86_64' 'aarch64')
+url="https://ebb-tau.vercel.app"
+license=('MIT')
+depends=('fontconfig' 'gcc-libs' 'glibc' 'libice' 'libsm' 'libx11' 'zlib')
+optdepends=('polkit: clean system caches and logs (asks for your password)'
+            'pacman-contrib: paccache, which frees more of the pacman cache')
+provides=('ebb')
+conflicts=('ebb')
+# A self-contained .NET app: stripping or splitting debug info would break it.
+options=('!strip' '!debug')
+source_x86_64=("https://github.com/EzraBuild/Ebb/releases/download/v${pkgver}/Ebb-${pkgver}-linux-x64.tar.gz")
+source_aarch64=("https://github.com/EzraBuild/Ebb/releases/download/v${pkgver}/Ebb-${pkgver}-linux-arm64.tar.gz")
+sha256sums_x86_64=('@SHA256_X64@')
+sha256sums_aarch64=('@SHA256_ARM64@')
+
+package() {
+    local dir="Ebb-${pkgver}-linux-x64"
+    [[ $CARCH == aarch64 ]] && dir="Ebb-${pkgver}-linux-arm64"
+
+    install -d "$pkgdir/opt/ebb" "$pkgdir/usr/bin"
+    cp -a "$dir/app/." "$pkgdir/opt/ebb/"
+    ln -s /opt/ebb/ebb "$pkgdir/usr/bin/ebb"
+    sed 's|^Exec=.*|Exec=/opt/ebb/ebb|' "$dir/ebb.desktop" > ebb.desktop
+    install -Dm644 ebb.desktop "$pkgdir/usr/share/applications/ebb.desktop"
+    install -Dm644 "$dir/ebb.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/ebb.svg"
+    install -Dm644 "$dir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
