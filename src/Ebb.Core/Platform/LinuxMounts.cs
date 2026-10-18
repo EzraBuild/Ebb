@@ -73,6 +73,10 @@ public static class LinuxMounts
         return path => skip.Contains(path) || Path.GetFileName(path) is ".snapshots" or "timeshift-btrfs";
     }
 
+    /// <summary>The mount a path is on (the deepest mount point above it), or null if none matches.</summary>
+    public static Mount? MountOf(string path, IReadOnlyList<Mount> mounts) =>
+        mounts.Where(m => IsSameOrUnder(path, m.Target)).OrderBy(m => m.Target.Length).LastOrDefault();
+
     /// <summary>mountinfo writes spaces and a few other characters as octal, like \040.</summary>
     internal static string Unescape(string field)
     {

@@ -15,6 +15,7 @@ public sealed class PathGuard
     private readonly string _usersFolder;
     private readonly string _profile;
     private readonly string? _trash;
+    private readonly string? _removable;
     private readonly string? _confineTo;
 
     /// <param name="paths">Where the system keeps things.</param>
@@ -38,6 +39,7 @@ public sealed class PathGuard
         _profile = paths.UserProfile;
         _usersFolder = Path.GetDirectoryName(paths.UserProfile)!;
         _trash = paths.IsLinux ? paths.Trash : null;
+        _removable = paths.IsLinux ? Path.Combine(paths.SystemDrive, "run", "media") : null;
         _confineTo = confineTo;
     }
 
@@ -55,7 +57,10 @@ public sealed class PathGuard
         if (PathUtil.RelativeSegments(full, root).Length < 2)
             return "Top-level folders and files on a drive are never removed.";
 
-        if (_systemTrees.Any(tree => PathUtil.IsSameOrUnder(full, tree)))
+        // USB sticks and other drives get mounted under /run/media/<you>, inside the system's /run.
+        var onRemovable = _removable is not null && PathUtil.IsUnder(full, _removable) &&
+                          PathUtil.RelativeSegments(full, _removable).Length > 2;
+        if (!onRemovable && _systemTrees.Any(tree => PathUtil.IsSameOrUnder(full, tree)))
             return _linux
                 ? "System and package folders are never touched directly."
                 : "Windows and app install folders are never touched directly.";
@@ -65,7 +70,8 @@ public sealed class PathGuard
                 s.Equals("System Volume Information", StringComparison.OrdinalIgnoreCase)))
             return "Windows manages this folder.";
 
-        if (_trash is not null && PathUtil.IsUnder(full, _trash))
+        if (_trash is not null && (PathUtil.IsUnder(full, _trash) ||
+                                   full.Split(Path.DirectorySeparatorChar).Any(s => s == ".Trash" || s.StartsWith(".Trash-", StringComparison.Ordinal))))
             return "It's in the Trash. Empty the Trash instead.";
 
         if (_keepExactly.Any(keep => PathUtil.SamePath(full, keep)))
