@@ -174,12 +174,24 @@
                             BorderBrush="{DynamicResource Ebb.BorderStrong}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
-                            <Path
-                                x:Name="Mark"
-                                Data="M 2.5,7 L 5.5,10 L 11.5,3.5"
-                                Stroke="{DynamicResource Ebb.InverseText}"
-                                StrokeThickness="1.6"
-                                Visibility="Collapsed" />
+                            <Grid>
+                                <Path
+                                    x:Name="Mark"
+                                    Data="M 2.5,7 L 5.5,10 L 11.5,3.5"
+                                    Stroke="{DynamicResource Ebb.InverseText}"
+                                    StrokeThickness="1.6"
+                                    Visibility="Collapsed" />
+                                <!--  Some ticked: a dash in the box  -->
+                                <Rectangle
+                                    x:Name="Partial"
+                                    Width="8"
+                                    Height="2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Fill="{DynamicResource Ebb.Text}"
+                                    SnapsToDevicePixels="True"
+                                    Visibility="Collapsed" />
+                            </Grid>
                         </Border>
                         <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Top" />
                     </Grid>
@@ -191,6 +203,9 @@
                             <Setter TargetName="Box" Property="Background" Value="{DynamicResource Ebb.Inverse}" />
                             <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Ebb.Inverse}" />
                             <Setter TargetName="Mark" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="Partial" Property="Visibility" Value="Visible" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.25" />
