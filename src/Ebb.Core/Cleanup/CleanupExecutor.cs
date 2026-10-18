@@ -161,11 +161,11 @@ public sealed class CleanupExecutor(
         if (step.ElevatorPath is not null && result.ExitCode is 126 or 127)
             return new StepResult(step, StepOutcome.Skipped, 0, 0, "Nothing ran: the password prompt was closed or refused.");
         if (!result.Succeeded)
-            return new StepResult(step, StepOutcome.Failed, 0, 0, $"{tool.Tool} reported a problem: {output}");
+            return new StepResult(step, StepOutcome.Failed, 0, 0, $"{tool.DisplayName} reported a problem: {output}");
 
         var message = tool.Tool == "docker" && OperatingSystem.IsWindows()
             ? "Docker cleaned up inside its disk. Shrink the Docker disk to get that space back on this drive."
-            : freed > 0 ? $"{tool.Tool} finished and freed {ByteSize.Format(freed)}." : $"{tool.Tool} finished.";
+            : freed > 0 ? $"{tool.DisplayName} finished and freed {ByteSize.Format(freed)}." : $"{tool.DisplayName} finished.";
         return new StepResult(step, StepOutcome.Done, freed, 0, message);
     }
 

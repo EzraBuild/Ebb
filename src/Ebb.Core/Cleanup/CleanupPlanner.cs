@@ -88,15 +88,15 @@ public sealed class CleanupPlanner(PathGuard guard, IToolLocator tools)
     private (PlanStep?, string?) RootToolStep(Finding finding, RunTool tool)
     {
         if (tools.Find(tool.Tool) is not { } toolPath)
-            return (null, $"{tool.Tool} isn't installed.");
+            return (null, $"{tool.DisplayName} isn't installed.");
         if (tools.Find("pkexec") is not { } pkexec)
-            return (null, $"Needs root, and pkexec (polkit) isn't installed. Run “sudo {string.Join(' ', [tool.Tool, .. tool.Arguments])}” yourself.");
+            return (null, $"Needs root, and pkexec (polkit) isn't installed. Run “sudo {tool.Command}” yourself.");
 
         return (new PlanStep
         {
             Finding = finding,
             Kind = StepKind.RunTool,
-            Description = $"Runs {tool.Tool}'s own cleanup command as root. Your system asks for your password first.",
+            Description = $"Runs {tool.DisplayName}'s own cleanup command as root. Your system asks for your password first.",
             CommandLine = tool.CommandLine,
             ToolPath = toolPath,
             ElevatorPath = pkexec,

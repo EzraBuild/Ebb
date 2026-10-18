@@ -31,6 +31,7 @@ public static class DefaultDetectors
         new SystemPackageCacheDetector(tools),
         new JournalDetector(runner, tools),
         new FlatpakDetector(tools),
+        new SnapDetector(runner, tools),
         new UserCacheDetector(),
         new TrashDetector(trash),
         new DownloadsDetector(),

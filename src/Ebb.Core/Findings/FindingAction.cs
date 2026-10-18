@@ -13,9 +13,18 @@ public sealed record RemoveItems(string? RebuiltBy = null) : FindingAction;
 
 /// <summary>Runs the tool's own clean command. If the tool isn't installed, the items are removed instead.</summary>
 /// <param name="AsRoot">Linux: runs it as root through pkexec, which asks for your password first.</param>
-public sealed record RunTool(string Tool, IReadOnlyList<string> Arguments, bool AsRoot = false) : FindingAction
+/// <param name="Name">What to call it in messages, when the tool is a shell running the real one (like snap).</param>
+public sealed record RunTool(string Tool, IReadOnlyList<string> Arguments, bool AsRoot = false, string? Name = null) : FindingAction
 {
-    public string CommandLine => string.Join(' ', [.. AsRoot ? ["pkexec"] : Array.Empty<string>(), Tool, .. Arguments]);
+    public string DisplayName => Name ?? Tool;
+
+    /// <summary>The command as you'd type it.</summary>
+    public string Command => string.Join(' ', [Tool, .. Arguments.Select(Quote)]);
+
+    /// <summary>The command, with pkexec in front when it runs as root.</summary>
+    public string CommandLine => AsRoot ? "pkexec " + Command : Command;
+
+    private static string Quote(string argument) => argument.Contains(' ') ? $"'{argument}'" : argument;
 }
 
 /// <summary>A Windows command that needs admin, run by Ebb.Helper.</summary>
