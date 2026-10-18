@@ -15,7 +15,11 @@ Get it from **[ebb-tau.vercel.app](https://ebb-tau.vercel.app)** or [Releases](h
 
 Ebb isn't code-signed yet, so Windows may say **Windows protected your PC** the first time. Click **More info**, then **Run anyway**.
 
-**Linux** (64-bit: Arch and Omarchy, Ubuntu, Fedora, …): `Ebb-…-linux-x64.tar.gz` (about 40 MB) needs nothing installed. The installer needs no root and adds Ebb to your app menu; `./install.sh --uninstall` removes it.
+**Linux**, on Intel, AMD and ARM (Raspberry Pi 4/5, Asahi, ARM laptops):
+
+- Arch, Omarchy, Manjaro: `yay -S ebb-bin` (or `paru -S ebb-bin`).
+- Ubuntu, Debian, Mint: `sudo apt install ./ebb_*_amd64.deb` (or `_arm64.deb`).
+- Any other distro: unpack `Ebb-…-linux-x64.tar.gz` (or `-linux-arm64`), about 40 MB, and run the installer. It needs no root and adds Ebb to your app menu; `./install.sh --uninstall` removes it.
 
 ```sh
 tar -xzf Ebb-*-linux-x64.tar.gz
@@ -33,7 +37,7 @@ cd Ebb-*-linux-x64 && ./install.sh
 | Older .NET SDKs | Hibernation file, page file | |
 | Visual Studio caches | Recycle Bin | |
 
-On Linux, the System page has the pacman, apt or dnf package cache, the systemd journal (keeps the newest 100 MB), unused Flatpak runtimes, app caches in `~/.cache`, yay and paru build files, and the Trash. Developer files also cover Go, Cargo, Bun and Gradle caches.
+On Linux, the System page has the pacman, apt or dnf package cache, the systemd journal (keeps the newest 100 MB), unused Flatpak runtimes, old Snap versions, app caches in `~/.cache`, yay and paru build files, and the Trash (on a USB stick or second disk, that drive's own `.Trash-<uid>`). Developer files also cover Go, Cargo, Bun and Gradle caches.
 
 Each finding is marked **SAFE** (comes back by itself), **CHECK FIRST** (probably fine, but look) or **KEEP**, with the reason.
 
@@ -97,7 +101,9 @@ dotnet test tests/Ebb.Linux.Tests
 dotnet publish src/Ebb.Linux -c Release -r linux-x64 --self-contained -o publish-linux
 ```
 
-To release a version, push a tag like `v0.2.0`. GitHub Actions runs the tests on Windows and Linux, builds the two Windows zips and the Linux tarball, and attaches them to a new release.
+To release a version, push a tag like `v0.3.0`. GitHub Actions runs the tests on Windows, Linux x64 and Linux ARM, starts each Linux build on a fresh account, and attaches the Windows zips, the Linux tarballs and the .debs to a new release. Then it updates `ebb-bin` on the AUR.
+
+The AUR step needs a one-time setup: make an account on [aur.archlinux.org](https://aur.archlinux.org), add an SSH public key to it, and save the matching private key as the repository secret `AUR_SSH_PRIVATE_KEY`. Without that secret the step is skipped.
 
 The tests only use fake folders in the temp folder (`%TEMP%\EbbTests`, `/tmp/EbbTests`) and fake tools, and never touch your real files. One opt-in test moves a tiny temp file to your real Recycle Bin. Run it with `$env:EBB_RECYCLE_TEST = "1"; dotnet test`.
 
@@ -110,7 +116,8 @@ src/Ebb.App      WPF + WPF-UI app for Windows: monochrome, square corners, Geist
 src/Ebb.Linux    Avalonia app for Linux, same look
 tests/Ebb.Tests  xUnit tests for Windows (sandboxed)
 tests/Ebb.Linux.Tests  xUnit tests for the Linux parts, run on Linux and Windows
-packaging/linux  installer, menu entry and icon for the Linux tarball
+packaging/linux  installer, menu entry, icon and .deb builder for Linux
+packaging/aur    the ebb-bin PKGBUILD
 site             the website (Next.js on Vercel, deploys on every push)
 ```
 
