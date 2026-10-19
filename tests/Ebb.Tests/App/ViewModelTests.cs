@@ -166,6 +166,23 @@ public class ViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Review_window_says_which_page_each_step_came_from()
+    {
+        PlanStep Step(string id, Category category) => new()
+        {
+            Finding = Cleanup.CleanupPlannerTests.Finding(id, new RemoveItems()) with { Category = category },
+            Kind = StepKind.RemoveItems,
+            Description = "",
+        };
+        var plan = new CleanupPlan([Step("a", Category.Developer), Step("b", Category.Developer), Step("c", Category.Windows),
+            Step("d", Category.Personal)], []);
+
+        var cleanup = new CleanupViewModel(plan, _services.Executor, "log", _dialogs);
+
+        Assert.Equal(["DEVELOPER FILES", null, "WINDOWS", "PERSONAL FILES"], cleanup.Steps.Select(s => s.Group));
+    }
+
+    [Fact]
     public async Task Folder_browser_goes_in_and_back_up()
     {
         var main = Main();

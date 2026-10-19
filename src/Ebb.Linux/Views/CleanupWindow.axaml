@@ -65,114 +65,121 @@
                 <ItemsControl ClipToBounds="False" Focusable="False" ItemsSource="{Binding Steps}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="vm:StepViewModel">
-                            <Border Padding="18,16" Classes="card">
-                                <StackPanel>
-                                    <Grid>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Classes="title" Text="{Binding Title}" />
-                                            <Border Classes="tag" IsVisible="{Binding NeedsAdmin}">
-                                                <TextBlock Text="ASKS FOR PASSWORD" />
-                                            </Border>
-                                            <Border Classes="tag" IsVisible="{Binding IsPermanent}">
-                                                <TextBlock Text="CAN'T UNDO" />
-                                            </Border>
-                                        </StackPanel>
-                                        <TextBlock Classes="number" Text="{Binding SizeText}" />
-                                    </Grid>
-                                    <TextBlock
-                                        Margin="0,7,0,0"
-                                        Classes="body"
-                                        Text="{Binding Description}" />
-                                    <Border
-                                        Margin="0,12,0,0"
-                                        Classes="command"
-                                        IsVisible="{Binding HasCommand}">
-                                        <TextBlock
-                                            FontFamily="{DynamicResource Ebb.Mono}"
-                                            FontSize="12"
-                                            Text="{Binding CommandText}"
-                                            TextWrapping="Wrap" />
-                                    </Border>
-                                    <ItemsControl
-                                        Margin="0,6,0,0"
-                                        Focusable="False"
-                                        ItemsSource="{Binding Warnings}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="sys:String">
-                                                <TextBlock
-                                                    Margin="0,4,0,0"
-                                                    Text="{Binding StringFormat='! {0}'}"
-                                                    TextWrapping="Wrap" />
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-
-                                    <StackPanel Margin="0,12,0,0" IsVisible="{Binding HasItems}">
-                                        <!--  Filter by folder: Tick all / Untick all then act on what's shown  -->
-                                        <TextBox
-                                            Margin="0,0,0,10"
-                                            AutomationProperties.Name="Filter by folder"
-                                            Classes="input"
-                                            IsVisible="{Binding CanFilter}"
-                                            Text="{Binding Filter}"
-                                            Watermark="Filter by folder, e.g. code/shop" />
-                                        <Grid Margin="0,0,0,6" ColumnDefinitions="*,Auto">
-                                            <TextBlock Classes="meta" Text="{Binding ItemsSummary}" />
-                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                <Button
-                                                    Margin="0,0,16,0"
-                                                    Command="{Binding ClearFilterCommand}"
-                                                    Content="Clear filter"
-                                                    IsVisible="{Binding IsFiltering}"
-                                                    Theme="{StaticResource Ebb.Link}" />
-                                                <Button
-                                                    Command="{Binding TickAllCommand}"
-                                                    Content="{Binding TickText}"
-                                                    Theme="{StaticResource Ebb.Link}" />
-                                                <Button
-                                                    Margin="16,0,0,0"
-                                                    Command="{Binding UntickAllCommand}"
-                                                    Content="{Binding UntickText}"
-                                                    Theme="{StaticResource Ebb.Link}" />
+                            <StackPanel>
+                                <TextBlock
+                                    Margin="0,12,0,10"
+                                    Classes="eyebrow"
+                                    IsVisible="{Binding HasGroup}"
+                                    Text="{Binding Group}" />
+                                <Border Padding="18,16" Classes="card">
+                                    <StackPanel>
+                                        <Grid>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Classes="title" Text="{Binding Title}" />
+                                                <Border Classes="tag" IsVisible="{Binding NeedsAdmin}">
+                                                    <TextBlock Text="ASKS FOR PASSWORD" />
+                                                </Border>
+                                                <Border Classes="tag" IsVisible="{Binding IsPermanent}">
+                                                    <TextBlock Text="CAN'T UNDO" />
+                                                </Border>
                                             </StackPanel>
+                                            <TextBlock Classes="number" Text="{Binding SizeText}" />
                                         </Grid>
                                         <TextBlock
-                                            Margin="0,10,0,4"
+                                            Margin="0,7,0,0"
                                             Classes="body"
-                                            IsVisible="{Binding NothingMatches}"
-                                            Text="Nothing here matches that." />
-                                        <ListBox
-                                            MaxHeight="260"
-                                            ItemsSource="{Binding ShownItems}"
-                                            Theme="{StaticResource Ebb.ItemList}">
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate DataType="vm:PlanItemViewModel">
-                                                    <Grid ColumnDefinitions="30,*,96">
-                                                        <CheckBox
-                                                            AutomationProperties.Name="{Binding Path}"
-                                                            IsChecked="{Binding Selected}"
-                                                            IsEnabled="{Binding CanSelect}" />
-                                                        <StackPanel Grid.Column="1">
-                                                            <TextBlock
-                                                                FontFamily="{DynamicResource Ebb.Mono}"
-                                                                FontSize="12"
-                                                                Text="{Binding Path}"
-                                                                TextTrimming="CharacterEllipsis"
-                                                                ToolTip.Tip="{Binding Path}" />
-                                                            <TextBlock Classes="meta" Text="{Binding Note}" />
-                                                        </StackPanel>
-                                                        <TextBlock
-                                                            Grid.Column="2"
-                                                            Classes="number"
-                                                            FontSize="12"
-                                                            Text="{Binding SizeText}" />
-                                                    </Grid>
+                                            Text="{Binding Description}" />
+                                        <Border
+                                            Margin="0,12,0,0"
+                                            Classes="command"
+                                            IsVisible="{Binding HasCommand}">
+                                            <TextBlock
+                                                FontFamily="{DynamicResource Ebb.Mono}"
+                                                FontSize="12"
+                                                Text="{Binding CommandText}"
+                                                TextWrapping="Wrap" />
+                                        </Border>
+                                        <ItemsControl
+                                            Margin="0,6,0,0"
+                                            Focusable="False"
+                                            ItemsSource="{Binding Warnings}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="sys:String">
+                                                    <TextBlock
+                                                        Margin="0,4,0,0"
+                                                        Text="{Binding StringFormat='! {0}'}"
+                                                        TextWrapping="Wrap" />
                                                 </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <StackPanel Margin="0,12,0,0" IsVisible="{Binding HasItems}">
+                                            <!--  Filter by folder: Tick all / Untick all then act on what's shown  -->
+                                            <TextBox
+                                                Margin="0,0,0,10"
+                                                AutomationProperties.Name="Filter by folder"
+                                                Classes="input"
+                                                IsVisible="{Binding CanFilter}"
+                                                Text="{Binding Filter}"
+                                                Watermark="Filter by folder, e.g. code/shop" />
+                                            <Grid Margin="0,0,0,6" ColumnDefinitions="*,Auto">
+                                                <TextBlock Classes="meta" Text="{Binding ItemsSummary}" />
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                    <Button
+                                                        Margin="0,0,16,0"
+                                                        Command="{Binding ClearFilterCommand}"
+                                                        Content="Clear filter"
+                                                        IsVisible="{Binding IsFiltering}"
+                                                        Theme="{StaticResource Ebb.Link}" />
+                                                    <Button
+                                                        Command="{Binding TickAllCommand}"
+                                                        Content="{Binding TickText}"
+                                                        Theme="{StaticResource Ebb.Link}" />
+                                                    <Button
+                                                        Margin="16,0,0,0"
+                                                        Command="{Binding UntickAllCommand}"
+                                                        Content="{Binding UntickText}"
+                                                        Theme="{StaticResource Ebb.Link}" />
+                                                </StackPanel>
+                                            </Grid>
+                                            <TextBlock
+                                                Margin="0,10,0,4"
+                                                Classes="body"
+                                                IsVisible="{Binding NothingMatches}"
+                                                Text="Nothing here matches that." />
+                                            <ListBox
+                                                MaxHeight="260"
+                                                ItemsSource="{Binding ShownItems}"
+                                                Theme="{StaticResource Ebb.ItemList}">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate DataType="vm:PlanItemViewModel">
+                                                        <Grid ColumnDefinitions="30,*,96">
+                                                            <CheckBox
+                                                                AutomationProperties.Name="{Binding Path}"
+                                                                IsChecked="{Binding Selected}"
+                                                                IsEnabled="{Binding CanSelect}" />
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock
+                                                                    FontFamily="{DynamicResource Ebb.Mono}"
+                                                                    FontSize="12"
+                                                                    Text="{Binding Path}"
+                                                                    TextTrimming="CharacterEllipsis"
+                                                                    ToolTip.Tip="{Binding Path}" />
+                                                                <TextBlock Classes="meta" Text="{Binding Note}" />
+                                                            </StackPanel>
+                                                            <TextBlock
+                                                                Grid.Column="2"
+                                                                Classes="number"
+                                                                FontSize="12"
+                                                                Text="{Binding SizeText}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </Border>
+                                </Border>
+                            </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

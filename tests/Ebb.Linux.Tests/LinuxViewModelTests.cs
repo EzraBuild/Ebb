@@ -119,6 +119,25 @@ public class LinuxViewModelTests : IDisposable
         Assert.True(step.IsPermanent);
     }
 
+    [Fact]
+    public void Review_window_says_which_page_each_step_came_from()
+    {
+        PlanStep Step(string id, Category category) => new()
+        {
+            Finding = new Finding
+            {
+                Id = id, Category = category, Title = id, Reason = "", Safety = Safety.Safe, Bytes = MB, Action = new RemoveItems(),
+            },
+            Kind = StepKind.RemoveItems,
+            Description = "",
+        };
+        var plan = new CleanupPlan([Step("a", Category.Developer), Step("b", Category.Windows), Step("c", Category.Windows)], []);
+
+        var cleanup = new CleanupViewModel(plan, _services.Executor, "log", _dialogs);
+
+        Assert.Equal(["DEVELOPER FILES", "SYSTEM", null], cleanup.Steps.Select(s => s.Group));
+    }
+
     private sealed class FakeDialogs : IDialogs
     {
         public Func<CleanupViewModel, Task>? OnShow { get; set; }

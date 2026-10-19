@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Ebb.Linux.Services;
 using Ebb.Core;
 using Ebb.Core.Cleanup;
+using Ebb.Core.Findings;
 
 namespace Ebb.Linux.ViewModels;
 
@@ -27,7 +28,9 @@ public sealed partial class CleanupViewModel : ObservableObject
         _executor = executor;
         _logPath = logPath;
         _dialogs = dialogs;
-        Steps = plan.Steps.Select(s => new StepViewModel(s, plan, TotalsChanged)).ToList();
+        // Steps come in page order; each page's first step gets a heading.
+        Steps = plan.Steps.Select((s, i) => new StepViewModel(s, plan, TotalsChanged,
+            startsGroup: i == 0 || plan.Steps[i - 1].Finding.Category != s.Finding.Category)).ToList();
         Skipped = plan.Skipped.Select(s => new SkippedViewModel(s.Finding.Title, s.Reason)).ToList();
     }
 
@@ -143,9 +146,10 @@ public sealed partial class StepViewModel : ObservableObject
     private readonly CleanupPlan _plan;
     private readonly Action _totalsChanged;
 
-    public StepViewModel(PlanStep step, CleanupPlan plan, Action totalsChanged)
+    public StepViewModel(PlanStep step, CleanupPlan plan, Action totalsChanged, bool startsGroup = false)
     {
         Step = step;
+        Group = startsGroup ? GroupName(step.Finding.Category) : null;
         _plan = plan;
         _totalsChanged = totalsChanged;
         Items = step.Items.Select(i => new PlanItemViewModel(i, Changed)).ToList();
@@ -154,6 +158,11 @@ public sealed partial class StepViewModel : ObservableObject
     public PlanStep Step { get; }
 
     public string Title => Step.Title;
+
+    /// <summary>The page this step came from, shown above the first step of each page.</summary>
+    public string? Group { get; }
+
+    public bool HasGroup => Group is not null;
 
     public string Description => Step.Description;
 
@@ -222,6 +231,13 @@ public sealed partial class StepViewModel : ObservableObject
         OnPropertyChanged(nameof(IsPermanent));
         OnPropertyChanged(nameof(ItemsSummary));
     }
+
+    private static string GroupName(Category category) => category switch
+    {
+        Category.Developer => "DEVELOPER FILES",
+        Category.Windows => "SYSTEM",
+        _ => "PERSONAL FILES",
+    };
 
     private void SetShown(bool selected)
     {
