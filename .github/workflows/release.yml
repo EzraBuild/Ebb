@@ -80,7 +80,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" dist/* --title "Ebb $TAG" --notes-file .github/release-notes.md
+          AUR_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        run: |
+          notes=.github/release-notes.md
+          # Until the AUR is set up, yay can't find ebb-bin: point Arch users at the tarball instead.
+          if [ -z "$AUR_KEY" ]; then
+            sed -i 's|^\*\*Arch, Omarchy, Manjaro:\*\*.*|**Arch, Omarchy, Manjaro:** use the tarball below for now. `yay -S ebb-bin` is coming to the AUR.|' "$notes"
+          fi
+          gh release create "$TAG" dist/* --title "Ebb $TAG" --notes-file "$notes"
 
   aur:
     needs: release

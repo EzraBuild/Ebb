@@ -19,6 +19,7 @@ Ebb isn't code-signed yet, so Windows may say **Windows protected your PC** the 
 
 - Arch, Omarchy, Manjaro: `yay -S ebb-bin` (or `paru -S ebb-bin`).
 - Ubuntu, Debian, Mint: `sudo apt install ./ebb_*_amd64.deb` (or `_arm64.deb`).
+- Fedora, openSUSE: `sudo dnf install ./ebb-*.x86_64.rpm` (or `.aarch64.rpm`; `zypper install` on openSUSE).
 - Any other distro: unpack `Ebb-…-linux-x64.tar.gz` (or `-linux-arm64`), about 40 MB, and run the installer. It needs no root and adds Ebb to your app menu; `./install.sh --uninstall` removes it.
 
 ```sh
@@ -101,7 +102,7 @@ dotnet test tests/Ebb.Linux.Tests
 dotnet publish src/Ebb.Linux -c Release -r linux-x64 --self-contained -o publish-linux
 ```
 
-To release a version, push a tag like `v0.3.0`. GitHub Actions runs the tests on Windows, Linux x64 and Linux ARM, starts each Linux build on a fresh account, and attaches the Windows zips, the Linux tarballs and the .debs to a new release. Then it updates `ebb-bin` on the AUR.
+To release a version, push a tag like `v0.3.0`. GitHub Actions runs the tests on Windows, Linux x64 and Linux ARM, installs each Linux download the way a user would (apt, and dnf in a Fedora container) and starts it on a fresh account, then attaches the Windows zips and the Linux tarballs, .debs and .rpms to a new release. Then it updates `ebb-bin` on the AUR.
 
 The AUR step needs a one-time setup: make an account on [aur.archlinux.org](https://aur.archlinux.org), add an SSH public key to it, and save the matching private key as the repository secret `AUR_SSH_PRIVATE_KEY`. Without that secret the step is skipped.
 
@@ -116,7 +117,7 @@ src/Ebb.App      WPF + WPF-UI app for Windows: monochrome, square corners, Geist
 src/Ebb.Linux    Avalonia app for Linux, same look
 tests/Ebb.Tests  xUnit tests for Windows (sandboxed)
 tests/Ebb.Linux.Tests  xUnit tests for the Linux parts, run on Linux and Windows
-packaging/linux  installer, menu entry, icon and .deb builder for Linux
+packaging/linux  installer, menu entry, icon, and the scripts that build and test the tarball, .deb and .rpm
 packaging/aur    the ebb-bin PKGBUILD
 site             the website, ebb.justsee.me (Next.js on Vercel, deploys on every push)
 ```
