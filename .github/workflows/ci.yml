@@ -33,14 +33,10 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet test tests/Ebb.Linux.Tests -c Release
 
-      - name: Start the app on a fresh account (it must still be running after 15 s)
+      - name: Build the tarball, .deb and .rpm
         run: |
-          dotnet publish src/Ebb.Linux -c Release -r "linux-${{ matrix.arch }}" --self-contained -o out/app
-          sudo apt-get install -y -qq xvfb > /dev/null
-          home=$(mktemp -d)
-          set +e
-          HOME="$home" timeout 15 xvfb-run -a out/app/ebb
-          code=$?
-          set -e
-          cat "$home/.local/share/Ebb/errors.log" 2> /dev/null || true
-          [ "$code" -eq 124 ]
+          sudo apt-get install -y -qq rpm xvfb > /dev/null
+          sh packaging/linux/build-all.sh 0.0.0 ${{ matrix.arch }} dist
+
+      - name: Install each one and start it on a fresh account
+        run: sh packaging/linux/smoke-test.sh dist 0.0.0 ${{ matrix.arch }}

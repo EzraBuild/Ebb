@@ -39,10 +39,8 @@ jobs:
       matrix:
         include:
           - arch: x64
-            deb: amd64
             runner: ubuntu-latest
           - arch: arm64
-            deb: arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
@@ -52,32 +50,17 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet test tests/Ebb.Linux.Tests -c Release
 
-      - name: Build the tarball and .deb
+      - name: Build the tarball, .deb and .rpm
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          version="${TAG#v}"
-          name="Ebb-$version-linux-${{ matrix.arch }}"
-          dotnet publish src/Ebb.Linux -c Release -r "linux-${{ matrix.arch }}" --self-contained -p:Version="$version" -p:DebugType=none -o "out/$name/app"
-          cp packaging/linux/install.sh packaging/linux/ebb.desktop packaging/linux/ebb.svg LICENSE "out/$name/"
-          chmod +x "out/$name/install.sh" "out/$name/app/ebb"
-          mkdir dist
-          tar -czf "dist/$name.tar.gz" -C out "$name"
-          sh packaging/linux/build-deb.sh "out/$name/app" "$version" "${{ matrix.deb }}" "dist/ebb_${version}_${{ matrix.deb }}.deb"
-          ls -l dist
+          sudo apt-get install -y -qq rpm xvfb > /dev/null
+          sh packaging/linux/build-all.sh "${TAG#v}" ${{ matrix.arch }} dist
 
-      - name: Start it on a fresh account (it must still be running after 15 s)
+      - name: Install each one and start it on a fresh account
         env:
           TAG: ${{ github.ref_name }}
-        run: |
-          sudo apt-get install -y -qq xvfb > /dev/null
-          home=$(mktemp -d)
-          set +e
-          HOME="$home" timeout 15 xvfb-run -a "out/Ebb-${TAG#v}-linux-${{ matrix.arch }}/app/ebb"
-          code=$?
-          set -e
-          cat "$home/.local/share/Ebb/errors.log" 2> /dev/null || true
-          [ "$code" -eq 124 ]
+        run: sh packaging/linux/smoke-test.sh dist "${TAG#v}" ${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v4
         with:
