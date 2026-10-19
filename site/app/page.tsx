@@ -351,6 +351,7 @@ function Linux({ release, aur }: { release: Release; aur: boolean }) {
           <div className="mt-8 border border-line-strong bg-card font-mono text-[13px]">
             {aur && <Install label="Arch, Omarchy, Manjaro" command="yay -S ebb-bin" />}
             <Install label="Ubuntu, Debian, Mint" command="sudo apt install ./ebb_*_amd64.deb" download={release.deb} file=".deb" />
+            <Install label="Fedora, openSUSE" command="sudo dnf install ./ebb-*.x86_64.rpm" download={release.rpm} file=".rpm" />
             <Install
               label="Any distro, no root needed"
               command={"tar -xzf Ebb-*-linux-x64.tar.gz\ncd Ebb-*-linux-x64 && ./install.sh"}
@@ -361,7 +362,8 @@ function Linux({ release, aur }: { release: Release; aur: boolean }) {
           <p className="mt-4 text-sm text-pretty text-muted">
             On ARM, like a Raspberry Pi or an Asahi Mac? Get the{" "}
             <a href={release.linuxArm.url} className="underline underline-offset-4 hover:text-fg">arm64 tarball</a> or{" "}
-            <a href={release.debArm.url} className="underline underline-offset-4 hover:text-fg">arm64 .deb</a>.
+            <a href={release.debArm.url} className="underline underline-offset-4 hover:text-fg">.deb</a> or{" "}
+            <a href={release.rpmArm.url} className="underline underline-offset-4 hover:text-fg">.rpm</a>.
             {" "}<Code>./install.sh --uninstall</Code> removes the tarball install again.
           </p>
           <div className="mt-6">
@@ -393,7 +395,7 @@ function Faq({ release, aur }: { release: Release; aur: boolean }) {
       q: "Which download should I get?",
       a: (
         <>
-          On Linux: {aur && <><Code>yay -S ebb-bin</Code> on Arch, </>}the .deb on Ubuntu or Debian, or the tarball (
+          On Linux: {aur && <><Code>yay -S ebb-bin</Code> on Arch, </>}the .deb on Ubuntu or Debian, the .rpm on Fedora, or the tarball (
           {release.linux.size ?? "about 40 MB"}) anywhere else. On Windows, the main download (
           {release.full.size ?? "about 72 MB"}) has everything it needs. If you already have the{" "}
           <a href="https://dotnet.microsoft.com/download/dotnet/8.0" className="underline underline-offset-4 hover:text-fg">

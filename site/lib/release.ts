@@ -22,6 +22,9 @@ export type Release = {
   /** Ubuntu and Debian packages. */
   deb: Download;
   debArm: Download;
+  /** Fedora and openSUSE packages. */
+  rpm: Download;
+  rpmArm: Download;
 };
 
 type Asset = { name: string; size: number; browser_download_url: string };
@@ -34,6 +37,8 @@ const fallback: Release = {
   linuxArm: { url: releasesUrl, size: null },
   deb: { url: releasesUrl, size: null },
   debArm: { url: releasesUrl, size: null },
+  rpm: { url: releasesUrl, size: null },
+  rpmArm: { url: releasesUrl, size: null },
 };
 
 /** The newest GitHub release, checked about once an hour. Falls back to the releases page. */
@@ -61,6 +66,8 @@ export async function getRelease(): Promise<Release> {
       linuxArm: pick("-linux-arm64.tar.gz"),
       deb: pick("_amd64.deb"),
       debArm: pick("_arm64.deb"),
+      rpm: pick(".x86_64.rpm"),
+      rpmArm: pick(".aarch64.rpm"),
     };
   } catch {
     return fallback;
